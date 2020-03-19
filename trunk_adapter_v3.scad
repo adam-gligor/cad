@@ -1,21 +1,31 @@
-w=140;
-h=140;
+w=135;
+h=135;
 
-linear_extrude(height=25, center=false){
-  difference(){
-    translate([5,5,0]) {
-      minkowski(){
-        square(size=[w-5,h-5]);
-        circle(r=5);
+difference(){
+  linear_extrude(height=25, center=false){
+    difference(){
+      translate([5,5,0]) {
+        minkowski(){
+          square(size=[w-10,h-10]);
+          circle(r=5);
+        }
       }
-    }
+       color("red") 
+      translate([5+15,5+15,0]) {
+          
+          minkowski(){
+            square(size=[w-40,h-40]);
+            circle(r=5);
+          }
+        
+      }
+      
+      
 
-    gap=5;
-    color("red"){
-      for(i=[0:3])
-        for(j=[0:3])
-          translate([w/4*i+gap,w/4*j+gap,0])
-            square(size=[w/4-gap,h/4-gap]);
     }
   }
+
+  translate([-1,-27,12.5])
+  rotate([0,90,0])
+  cylinder(r=30,h=w+2, $fn=50);
 }
