@@ -1,6 +1,5 @@
 //radius = 20;
-//angles = [45, 290];
-//width = 2;
+//angles = [45, 135];
 //fn = 24;
 
 module sector(radius, angles, fn = 24) {
@@ -20,11 +19,4 @@ module sector(radius, angles, fn = 24) {
     }
 }
 
-module arc(radius, angles, width = 1, fn = 24) {
-    difference() {
-        sector(radius + width, angles, fn);
-        sector(radius, angles, fn);
-    }
-} 
-
-//linear_extrude(1) arc(radius, angles, width);
+//sector(radius, angles, fn);  
