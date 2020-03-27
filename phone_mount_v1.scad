@@ -92,28 +92,29 @@ module handle(x,z, r) {
 
 module foo(){
   difference(){
-    union(){
-      difference(){
-        linear_extrude(height=r) handle(y,y,r);
+  union(){
+    difference(){
+      linear_extrude(height=r) handle(y,y,r);
 
-        //translate([0,0,0])
-        linear_extrude(height=r) {
-          offset(r = -1) {
-            handle(y,y,r);
-          }
-        }
-      }
+      //translate([0,0,0])
+//      linear_extrude(height=r) {
+//        offset(r = -3) {
+//          handle(y,y,r);
+//        }
+//      }
+    }
 
-      translate([0,0,1])
-      linear_extrude(height=r-2) {
-        offset(r = -1) {
-          handle(y,y,r);
-        }
+    translate([0,0,1])
+    linear_extrude(height=r-2) {
+      offset(r = -1) {
+        handle(y,y,r);
       }
     }
-      
-      translate([-15,20.5,6]) cube([30,2,4]);
   }
+    
+    translate([-15,20.5,6]) cube([30,2,4]);
+  
+}
 }
 
 //translate([phone_x/2+holder_thick,-40,0])
