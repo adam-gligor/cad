@@ -12,20 +12,32 @@ module screw(d, h){
    
   d_max_thread = d;
   pitch = 2.5;
-
   d_min_thread = d_max_thread- (1.082532 * pitch);
-  translate([0,0,1])
-    metric_thread(diameter=d_max_thread, pitch=pitch, length=h-1, internal=false, $fn=10);
-   
-  linear_extrude(height=1, scale=d_max_thread/d_min_thread) 
-    circle(d=d_min_thread);
-
-  translate([0,0,h-1])
-    linear_extrude(height=1, scale=d_max_thread/d_min_thread) 
-      circle(d=d_min_thread);
   
-  translate([0,0,h])
-    cylinder(h=2,d=d_max_thread+2);
+  difference(){
+    union(){
+      translate([0,0,0])
+        metric_thread(diameter=d_max_thread, pitch=pitch, length=h, internal=false, $fn=50);
+      
+
+      // top chamfer
+      translate([0,0,h-1])
+        linear_extrude(height=1, scale=d_max_thread/d_min_thread) 
+          circle(d=d_min_thread);
+      
+      //top cap
+      translate([0,0,h])
+        cylinder(h=2,d=d_max_thread+2);
+    }
+   
+    //bottom chamfer (inner)
+    //color("red")
+    difference() {
+      cylinder(d=d_max_thread+1, h=1);
+      linear_extrude(height=1, scale=d_max_thread/d_min_thread) 
+        circle(d=d_min_thread);
+    }
+  }
 }
 
 
@@ -41,13 +53,13 @@ module nut(d, h){
   d_min_thread = d_max_thread- (1.082532 * pitch);
   d_outer = d_max_thread+2*wall;
   
- difference(){
+   difference(){
     cylinder(d=d_outer,h=h);
    
     union(){
       //will draw th thread
       translate([0,0,0]) 
-        metric_thread(diameter=d_max_thread, pitch=pitch, length=h, internal=true, $fn=10);
+        metric_thread(diameter=d_max_thread, pitch=pitch, length=h, internal=true, $fn=50);
       
       //will draw 1 mm top and bottm chamfers
       translate([0,0,h-1]) 
@@ -57,10 +69,11 @@ module nut(d, h){
         linear_extrude(height=1, scale=d_min_thread/d_max_thread) 
           circle(d=d_max_thread);
     }
- }
+   }
 }
 
-translate([0,0,5])
-nut(10,5);
+//translate([0,0,5])
+//nut(10,5);
 
-color("red") screw(10,10);
+//color("red") 
+screw(10,10);
