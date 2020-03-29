@@ -21,7 +21,7 @@ module shape (){
   fillet(r=0.9)
    rounding(r=0.9)
       polygon(points = [
-        [0,0],
+        [-5,0],
         [0.5*side_thick,0],
         
         [side_thick,0.1*height],
@@ -32,7 +32,8 @@ module shape (){
         
   
         [side_thick,height],
-        [0,height]
+        [0,height],
+        [0,5]
       ]);
 }
 
@@ -58,15 +59,16 @@ module side_section(){
         shape();
     
     //bottom
-    union(){
-     difference(){
-      cube(size =[half_width+1,half_length+1,bottom_thick]);
-      translate([half_width-rounding+1,half_length-rounding+1,0])
-        cube(size =[rounding,rounding,bottom_thick]);
-      }
-      translate([half_width-rounding+1,half_length-rounding+1,0])
-        cylinder(r=rounding, h=bottom_thick);
-    }
+      rotate([-90,0,0])
+        union(){
+         difference(){
+          cube(size =[half_width+1,half_length+1,bottom_thick]);
+          translate([half_width-rounding+1,half_length-rounding+1,0])
+            cube(size =[rounding,rounding,bottom_thick]);
+          }
+          translate([half_width-rounding+1,half_length-rounding+1,0])
+            cylinder(r=rounding, h=bottom_thick);
+        }
 }
 
 // draw 
@@ -78,5 +80,4 @@ rotate([90,0,0])
       side_section();
     }
 
-
-//linear_extrude(height=bottom_thick)
+//shape();
