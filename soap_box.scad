@@ -37,6 +37,8 @@ module shape (){
 }
 
 module side_section(){
+  
+  //long side + corner
   translate([half_width,0,-half_length])
     union(){
       translate([0,0,rounding])
@@ -49,15 +51,32 @@ module side_section(){
               shape();
     }
    
+    //short side
    translate([0,0,-half_length])
      rotate([0,90,0]) 
       linear_extrude(height=half_width-rounding) 
         shape();
+    
+    //bottom
+    union(){
+     difference(){
+      cube(size =[half_width+1,half_length+1,bottom_thick]);
+      translate([half_width-rounding+1,half_length-rounding+1,0])
+        cube(size =[rounding,rounding,bottom_thick]);
+      }
+      translate([half_width-rounding+1,half_length-rounding+1,0])
+        cylinder(r=rounding, h=bottom_thick);
+    }
 }
 
+// draw 
 
-mirror_z()
-  union(){
-    mirror_x() side_section();
-    side_section();
-  }
+rotate([90,0,0])
+  mirror_z()
+    union(){
+      mirror_x() side_section();
+      side_section();
+    }
+
+
+//linear_extrude(height=bottom_thick)
