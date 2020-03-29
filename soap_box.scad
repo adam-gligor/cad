@@ -1,4 +1,6 @@
 include <../scad-utils/morphology.scad>;
+include <../scad-utils/mirror.scad>;
+include<arc.scad>;
 $fn=20;
 
 height = 22; // mm total height 
@@ -8,27 +10,54 @@ width = 75; // mm total thickness
 half_width = width/2;
 half_length = length/2;
 
-side_thick = 4; 
+side_thick = 5; 
 bottom_thick = 2;
 
-module shape (width){
-  half_width = width/2;
+rounding = 10;
+
+module shape (){
+  //half_width = 10;
   
-  fillet(d=0.9)
-    rounding(r=0.9)
+  fillet(r=0.9)
+   rounding(r=0.9)
       polygon(points = [
         [0,0],
-        [half_width,0],
+        [0.5*side_thick,0],
         
-        [half_width-(side_thick/2),side_thick],
-        [half_width-(side_thick/2),height-side_thick],
-        [half_width,height], 
-        [half_width-side_thick,height],
-        [half_width-side_thick,bottom_thick],
-        [0,bottom_thick],
+        [side_thick,0.1*height],
+        [side_thick,0.2*height],
+        [side_thick/2,0.3*height],
+        [side_thick/2,0.75*height],
+        [side_thick,0.9*height],
+        
+  
+        [side_thick,height],
+        [0,height]
       ]);
 }
 
+module side_section(){
+  translate([half_width,0,-half_length])
+    union(){
+      translate([0,0,rounding])
+        linear_extrude(height=half_length-rounding) 
+          shape();
+      translate([-rounding,0,rounding]) 
+        rotate([-90,0,0]) 
+          rotate_extrude(angle = 90, $fn=50)
+            translate([rounding,0,0]) 
+              shape();
+    }
+   
+   translate([0,0,-half_length])
+     rotate([0,90,0]) 
+      linear_extrude(height=half_width-rounding) 
+        shape();
+}
 
-linear_extrude(height=half_length-half_width/2) shape(width=half_width);
-translate([half_width/4,0,0]) rotate([-90,0,0]) rotate_extrude(angle = 90) shape(width=half_width/2);
+
+mirror_z()
+  union(){
+    mirror_x() side_section();
+    side_section();
+  }
