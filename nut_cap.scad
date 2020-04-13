@@ -19,9 +19,11 @@ module side_shape(){
 difference(){
     //side
     union(){
+        translate([0,0,1])
         linear_extrude(height=7)
             side_shape();
-
+        
+        cylinder(r=5.5, height=1, $fn=50);
 //        translate([0,0,5])
 //            linear_extrude(height=2,scale=1)
 //                side_shape();
@@ -29,12 +31,12 @@ difference(){
     }
     // cutout
     union(){
-        linear_extrude(height=2)
+        linear_extrude(height=1)
             circle(d=5.5, $fn=50);
         
-        translate([0,0,2])
+        translate([0,0,1])
             linear_extrude(height=7)
-                Hexagon(R=4.6); // <= OK
+                Hexagon(R=4.7); // <= OK, 7% contraction
         
 //         translate([0,0,5])
 //             linear_extrude(height=2)
