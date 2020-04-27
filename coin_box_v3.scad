@@ -1,110 +1,50 @@
 include <threads.scad>;
 
-$fn = 50;
+// https://en.wikipedia.org/wiki/ISO_metric_screw_thread
 
-// box parameters 
-d_inner = 27; // mm inner diameter (2eu coin)
-d_outer= 27 + 1; // mm outer diameter (1 mm wall thickness)
-h = 50; //mm height
 
-// thread parameters 
-thread_pitch = 2.5; 
-thread_size = 2; // means 1 mm thread height per side 
-thread_aspect_ratio = 0.5; // determines the depth of the profle based on previous 
-thread_length = 7.5;
-chamfer = 2; // chamfer of the ends of the thread
+$fn=100;
+d_outer = 28; //0.5 mm per side
+d_inner = 27;
+height=50;
+pitch = 1.5;
+d_thread = d_outer +  (1.082532 * pitch);
 
+module body() {
+    difference(){
+        union(){
+           metric_thread (diameter=d_thread, pitch=pitch, length=5, internal=false, leadin=2);
+           cylinder(d=d_outer, h=height);
+        }
+        // inner hole
+        cylinder(d=d_inner, h=height);
+    }
+    // end chamfer
+    translate([0,0,height])
+        linear_extrude(height=1, scale=d_inner/d_outer) circle(d=d_outer);
+}
 
 module cap() {
-  pad = 0.6; // make this thread slightly bigger ! use it  
-  d_thread_min = d_outer + pad;
-  d_thread_max = d_outer + (thread_aspect_ratio * thread_size);
-  d_cap = d_thread_max + 1.2; // cap outer diameter 
-  
-  difference(){
-    //the outer hull minus the thread
+d_thread_cap = d_thread + 1;
+d_outer_cap = d_thread_cap + 1;
     difference(){
-      cylinder(d=d_cap, h=thread_length);
-      metric_thread(
-        diameter=d_thread_max,
-        pitch=thread_pitch, 
-        length=thread_length,
-        thread_size=thread_size,
-        internal=true, 
-        square=true,
-        rectangle=thread_aspect_ratio
-        );
+        // cap body + end chamfer
+        union() {
+            cylinder(d=d_outer_cap,h=5);
+            translate([0,0,-1])
+            linear_extrude(height=1, scale=d_outer_cap/d_thread_cap) circle(d=d_thread_cap);
+        }
+        // inner chamfer + thread
+        union(){
+            metric_thread (diameter=d_thread_cap, pitch=pitch, length=5, internal=true);
+            translate([0,0,4]) 
+            color("red")
+                linear_extrude(height=1, scale=1.1)
+                    circle(d=d_outer);
+        }
     }
-    //the chamfer at the end of the thread
-    
-//    translate([0,0,thread_length-chamfer])
-//      linear_extrude(height=chamfer,scale=d_thread_max/d_thread_min) 
-//        circle(d=d_thread_min);
-  }
-  
-  // the bottom cap 
-  champfer_cap = 1;
-  translate([0,0,-champfer_cap]){
-    hull(){
-      cylinder(d=d_cap-champfer_cap, h = 0.1);
-      translate([0,0,champfer_cap]) cylinder(d=d_cap, h = 0.1);
-    }
-  }
 }
 
-  
-module bottle() {
-  d_thread_min = d_outer;
-  d_thread_max = d_outer+ (thread_aspect_ratio * thread_size);
-  
-  difference(){
-    union(){
-      //the thread
-      metric_thread(
-        diameter=d_thread_max, 
-        pitch=thread_pitch, 
-        length=thread_length, 
-        thread_size=thread_size, 
-        internal=false, 
-        square=true, 
-        rectangle=thread_aspect_ratio,
-        leadin=2
-     );
-      // the outer shaft
-      cylinder(d=d_thread_min, h=h);
-    }
-    //substract the inner shaft
-    cylinder(d=d_inner, h=h);
-    
-    //and a chamfer to the thred's end
-//    difference(){
-//      cylinder(d=d_thread_max+ 5, h=chamfer);
-//      linear_extrude(height=chamfer,scale=d_thread_max/d_thread_min) circle(d=d_thread_min);
-//    }
-  }
-
-  //bottom cap
-  champfer_cap = 1;
-  translate([0,0,h]){
-    hull(){
-      cylinder(d=d_outer, h = 0.1);
-      translate([0,0,champfer_cap]) cylinder(d=d_outer-champfer_cap, h = 0.1);
-    }
-  }
-}
-
-
+body();
 //cap();
-bottle();
 
-
-//      metric_thread(
-//        diameter=8+2,
-//        pitch=2, 
-//        length=10,
-//        thread_size=2,
-//        internal=true, 
-//        square=true,
-//        rectangle=1,
-//        leadin = 0
-//        );
