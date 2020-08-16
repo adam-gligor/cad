@@ -4,7 +4,7 @@ include <threads.scad>;
 
 
 $fn=100;
-d_outer = 28; //0.5 mm per side
+d_outer = 29; //1 mm per side (changed from 28)
 d_inner = 27;
 height=50;
 pitch = 1.5;
@@ -26,7 +26,7 @@ module body() {
 
 module cap() {
 d_thread_cap = d_thread + 1;
-d_outer_cap = d_thread_cap + 1;
+d_outer_cap = d_thread_cap + 2;
     difference(){
         // cap body + end chamfer
         union() {
@@ -45,6 +45,6 @@ d_outer_cap = d_thread_cap + 1;
     }
 }
 
-body();
-//cap();
+//body();
+cap();
 
