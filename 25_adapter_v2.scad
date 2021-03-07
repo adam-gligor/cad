@@ -1,5 +1,6 @@
-//total_xy: 104 x 47 
-//side_x: 31
+//xy = 104 x 47
+//z = 26
+//side_x = 31
 
 X = 104;
 Y = 47;
@@ -21,38 +22,46 @@ Z1 = 11;
 Z2 = 26-Z1;
 
 WALL= 0.8;
-DWALL = 2*WALL;
 
-module box_l(hollow = false, wall = 0){
-    translate([X2,0,0]) cube([X1,Y1,Z1+Z2]);    
+module box(xyz_trans, xyz){
+    translate(xyz_trans) 
+        cube(xyz);
 }
 
-module box_b(){
-    color("blue") cube([X2,Y2,Z1+Z2]);
-}
 
-module box_t(){
-    translate([X2,Y1,Z1]) cube([X3,Y3,Z2]);
-}
-
-module shape(){
-}
-
-module cutout(){
-    color("black"){
-        translate([X2,WALL,0]) cube([X1-WALL,Y1-DWALL,Z1+Z2]);
-        translate([WALL,WALL,0]) cube([X2-DWALL,Y2-DWALL,Z1+Z2]);
-        translate([X2,Y1,Z1]) cube([X3-WALL,Y3-WALL,Z2]);
+module hollow_box(xyz_trans, xyz, wall){
+    difference(){
+        translate(xyz_trans) 
+            cube(xyz);
+        translate(xyz_trans + [wall, wall, 0]) 
+            cube(xyz - [2*wall, 2*wall, 0]);
     }
 }
 
-
-
-difference(){
-    union(){
-        box_l();
-        box_b();
-        box_t();
-    }
-    cutout();
+module box_l(wall, z){
+    hollow_box([X2,0,0],[X1,Y1,z],wall);
 }
+
+module box_b(wall, z){
+    hollow_box([0,0,0],[X2,Y2,z],wall);
+}
+
+module box_t(wall, z_trans, z){
+    hollow_box([X2,Y1,z_trans], [X3,Y3,z], wall);
+}
+
+
+
+box_l(WALL, Z1+Z2);
+box_b(WALL, Z1+Z2);
+box_t(WALL, Z1, Z2);
+
+translate([0,0,Z1+Z2-0.6]){
+    box_l(3, 0.6);
+    box_b(3, 0.6);
+    box_t(3, 0, 0.6);
+}
+
+
+
+
