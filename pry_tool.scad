@@ -26,5 +26,14 @@ module shape2(){
     cylinder(h=Y,d=Z, center=true);
 }
 
+module shape3(){
+    Z=4;
+    linear_extrude(height=Z, center=true)
+    polygon([
+        [0,-20], [6,0], [0,20]
+    ]);
+}
+
 shape1();
 shape2();
+shape3();
