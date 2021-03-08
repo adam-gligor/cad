@@ -1,12 +1,30 @@
-include <../scad-utils/morphology.scad>;
-X=150;
-Y=2.5;
-Y1=Y+4;
-Z=10;
-linear_extrude(height=Z)
-polygon([[0,-1],[X,0],[X,Y1],[X-Y,Y1],[X-Y,Y],[0,Y+1]]);
+module shape1(){
+    X=200;
+    Y=2.5;
+    X1=4;
+    Y1=4.5;
+    Z=12;
 
-scale([1,1,1])
-translate([0,25,Z/2])
-rotate([90,0,0])
-cylinder(h=50,d=Z);
+    //Y + Y1 <= 7
+    
+    translate([0,-Y/2,-Z/2])
+    linear_extrude(height=Z)
+    polygon([
+        [0,0],[X,0],
+        [X+2,Y],[X-X1,Y+Y1], [X-X1-X1,Y+Y1],
+        [X-X1,Y],[0,Y]
+        ]
+    );
+}
+
+module shape2(){
+    Y=50;
+    Z=12;
+    scale([0.5,1,1])
+    translate([2,0,0])
+    rotate([90,0,0])
+    cylinder(h=Y,d=Z, center=true);
+}
+
+shape1();
+shape2();
