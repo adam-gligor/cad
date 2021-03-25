@@ -42,14 +42,17 @@ module shape_1(d_inner, d_outer, z){
 }
 
 module cutout(z){
-    zz = 3; // todo: 10
+    zz = 10; //existing hole
     CUTOUT = 1.5;
     
     //left
     rotate([0,0,24])
-    translate([0,(D1+d3)/2,0]) {
+    translate([0,(D1+d3)/2,0]) {        
+        translate([0,0,2]) {
+            cylinder(d=d1, h=z);                        
+        }
         cylinder(d=d3, h=zz);
-        cylinder(d=d1, h=z);
+        cylinder(d=CUTOUT, h=z);
     }
     
     rotate([0,0,24])
@@ -58,8 +61,12 @@ module cutout(z){
 
     
     //middle
-    translate([0,(D1+d3)/2,0])
-    cylinder(d=d1, h=z);
+    translate([0,(D1+d3)/2,0]){
+        translate([0,0,2]) {
+            cylinder(d=d1, h=z);
+        }
+        cylinder(d=CUTOUT, h=z);
+    }
         
     translate([-CUTOUT/2,(D1+d3)/2,0]) 
     cube([CUTOUT,d3,z]);
@@ -67,8 +74,12 @@ module cutout(z){
     //right
 
     rotate([0,0,-24])
-    translate([0,(D1+d3)/2,0]) 
-    cylinder(d=d1, h=z);
+    translate([0,(D1+d3)/2,0]){
+        translate([0,0,2]) {
+            cylinder(d=d1, h=z);
+        }
+        cylinder(d=CUTOUT, h=z);
+    }
 
     rotate([0,0,-24])
     translate([-CUTOUT/2,(D1+d3)/2,0]) 
@@ -81,15 +92,15 @@ module clamp() {
     
 }
 
-Z = 5;
+Z = 15;
 
-//difference(){
-//    shape_1(D1, D1 + 2* d3 + 4, Z);
+difference(){
+    shape_1(D1, D1 + 2* d3 + 4, Z);
     cutout(Z);
-//}
+}
 
 //translate([0,0,Z])
-//shape_1(D1, D1 + 3, 5);
+//shape_1(D1, D1 + 5, 4);
 
 //color("red")
 //cylinder(d=D1, h=15);
