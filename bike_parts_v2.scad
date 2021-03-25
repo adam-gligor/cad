@@ -14,7 +14,7 @@ module shape_1(d_inner, d_outer, z){
     
     //D2 = D1 + 2* d3 + 4; //outer tube (for topmost bound)
     //Z = 15;
-    SIDE_OFFS = 3;
+    SIDE_OFFS = 8;
     
     difference() {
         //color("red")
@@ -42,38 +42,29 @@ module shape_1(d_inner, d_outer, z){
 }
 
 module cutout(z){
-    zz = 10; //existing hole
+    zz = 6; //existing hole
     CUTOUT = 1.5;
     
     //left
-    rotate([0,0,24])
+    rotate([0,0,12])
     translate([0,(D1+d3)/2,0]) {        
         translate([0,0,2]) {
             cylinder(d=d1, h=z);                        
         }
-        cylinder(d=d3, h=zz);
+        translate([0,0, -10])
+            cylinder(d=d3, h=zz + 10);
         cylinder(d=CUTOUT, h=z);
     }
     
-    rotate([0,0,24])
+    rotate([0,0,12])
     translate([-CUTOUT/2,(D1+d3)/2,0]) 
     cube([CUTOUT,d3,z]);
 
-    
-    //middle
-    translate([0,(D1+d3)/2,0]){
-        translate([0,0,2]) {
-            cylinder(d=d1, h=z);
-        }
-        cylinder(d=CUTOUT, h=z);
-    }
-        
-    translate([-CUTOUT/2,(D1+d3)/2,0]) 
-    cube([CUTOUT,d3,z]);
+
     
     //right
 
-    rotate([0,0,-24])
+    rotate([0,0,-12])
     translate([0,(D1+d3)/2,0]){
         translate([0,0,2]) {
             cylinder(d=d1, h=z);
@@ -81,26 +72,26 @@ module cutout(z){
         cylinder(d=CUTOUT, h=z);
     }
 
-    rotate([0,0,-24])
+    rotate([0,0,-12])
     translate([-CUTOUT/2,(D1+d3)/2,0]) 
     cube([CUTOUT,d3,z]);
 
 }
 
-module clamp() {
-    DX = D1 + 3;
-    
-}
 
-Z = 15;
+Z = 14;
 
 difference(){
-    shape_1(D1, D1 + 2* d3 + 4, Z);
+    union()
+    {
+        shape_1(D1, D1 + 2* d3 + 4, Z);
+        translate([0,0,-Z/2])
+            shape_1(D1, D1 + 4, Z+14);
+    }
     cutout(Z);
 }
 
-translate([0,0,Z])
-shape_1(D1, D1 + 4, 4);
+
 
 //color("red")
 //cylinder(d=D1, h=15);
