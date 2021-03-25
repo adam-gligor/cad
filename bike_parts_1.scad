@@ -1,51 +1,95 @@
 
 //tube diameters
 D1=41; // original
-D11= 41-4;//
+
 
 //small hole diameters
-d1=5;
-d2=6;
-d3=10;
-//d33 = d3+ 4;
+d1=5; // hose
+d2=6; 
+d3=10; //existing clamp
 $fn=50;
-Z= 0.1;
 
 
-//difference() {
-    color("red")
-    cylinder(d=D1+2*d3, h=1);
+module shape_1(d_inner, d_outer, z){
+    
+    //D2 = D1 + 2* d3 + 4; //outer tube (for topmost bound)
+    //Z = 15;
+    SIDE_OFFS = 3;
+    
+    difference() {
+        //color("red")
+        cylinder(d=d_outer, h=z);
 
-    union() {
-        //tube diameter
-        cylinder(d=D1, h=1);
-        
-        //bottom bound 
-        translate([-(D1/2), -(D1/2),0])
-        cube([D1, D1/2, 1]);
+        union() {
+            //tube diameter
+            color("blue")
+            cylinder(d=d_inner, h=z);
+            
+            //bottom bound 
+            translate([-(d_outer/2), -(d_outer/2),0])
+            cube([d_outer, d_outer/2, z]);
 
-        //left bound
-        translate([-(D1/2)-d3,-(D1/2),0])
-            cube([d3, D1*2, 1]);
+            //left bound
+            translate([-(d_inner/2)-20 + SIDE_OFFS,0,0])
+                cube([20, d_outer, z]);
 
-        //right bound
-        translate([D1/2,-D1/2,0])
-            cube([d3, D1*2, 1]);
-        
-
-
-        //3 holes
-        
-        rotate([0,0,-24])
-        translate([0,D1/2+d3/2,0])
-        cylinder(d=d1, h=1);
-        
-        translate([0,D1/2+d3/2,0])
-        cylinder(d=d1, h=1);
-
-        rotate([0,0,24])
-        translate([0,D1/2+d3/2,0])
-        cylinder(d=d3, h=1);
-
+            //right bound
+            translate([d_inner/2 - SIDE_OFFS,0,0])
+                cube([20, d_outer, z]);
+            
+        }
     }
+}
+
+module cutout(z){
+    zz = 3; // todo: 10
+    CUTOUT = 1.5;
+    
+    //left
+    rotate([0,0,24])
+    translate([0,(D1+d3)/2,0]) {
+        cylinder(d=d3, h=zz);
+        cylinder(d=d1, h=z);
+    }
+    
+    rotate([0,0,24])
+    translate([-CUTOUT/2,(D1+d3)/2,0]) 
+    cube([CUTOUT,d3,z]);
+
+    
+    //middle
+    translate([0,(D1+d3)/2,0])
+    cylinder(d=d1, h=z);
+        
+    translate([-CUTOUT/2,(D1+d3)/2,0]) 
+    cube([CUTOUT,d3,z]);
+    
+    //right
+
+    rotate([0,0,-24])
+    translate([0,(D1+d3)/2,0]) 
+    cylinder(d=d1, h=z);
+
+    rotate([0,0,-24])
+    translate([-CUTOUT/2,(D1+d3)/2,0]) 
+    cube([CUTOUT,d3,z]);
+
+}
+
+module clamp() {
+    DX = D1 + 3;
+    
+}
+
+Z = 5;
+
+//difference(){
+//    shape_1(D1, D1 + 2* d3 + 4, Z);
+    cutout(Z);
 //}
+
+//translate([0,0,Z])
+//shape_1(D1, D1 + 3, 5);
+
+//color("red")
+//cylinder(d=D1, h=15);
