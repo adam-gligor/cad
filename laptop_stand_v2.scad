@@ -1,8 +1,16 @@
-// https://www.calculator.net/right-triangle-calculator.html
-angle=30;
-height = 120;
-length = 207.8; 
-width = 200;   
+
+// inputs
+angle=30; 
+length = 200; 
+width = 200;
+
+//calculated
+//see: https://www.calculator.net/right-triangle-calculator.html
+height = 115.47;
+
+//tweaks
+
+//thicknesses 20x10
 thick_1 = 10;
 thick_2 = 20;
 
@@ -12,9 +20,12 @@ leg_offs_x2 = 3; // top offset
 
 module upper_shape() {
     //the top section
+    
+    //the offset to get a triable with `height` offset1 
+    offs = thick_1 + 1.54;
     difference(){
         polygon([[0,0], [0, height], [length,0]]);
-            translate([0, -thick_1])
+            translate([0, -offs])
         polygon([[0,0], [0, height], [length,0]]);
     }
     
@@ -33,7 +44,7 @@ module upper_shape() {
     }
     
     //a filler close to the front stopper
-    h = thick_1-3;
+    h = thick_1-2;
     translate([length-thick_2,0,0])
     polygon([[0,h], [thick_1,0], [thick_2,h]]);
     
@@ -85,8 +96,8 @@ module leg_part(){
 
         //the cutout
         spacer = 0.4;    
-        translate([leg_offs_x1+spacer,leg_offs_x1+spacer,5])
-        cube([thick_1-2*spacer, thick_2-2*spacer,thick_2]);
+        translate([leg_offs_x1-spacer,leg_offs_x1-spacer,5])
+        cube([thick_1+2*spacer, thick_2+2*spacer,thick_2]);
     }
 }
 
@@ -118,20 +129,22 @@ module demo(){
     upper_part();
 }
 
-//try
+//try 1
 //cube([20,  thick_2, thick_1]);
 //translate([-2,-2,0])
 //cube([2,24,10]);
 
-// try
+// try 2
 //intersection(){
 //translate([180,0,0]) cube([50,220,20]);
 //
 //upper_part();
 //}
 
+//try 3
+//leg_part();
 
 
-demo();
+//demo();
 //lower_part();
-//upper_part();
+upper_part();
