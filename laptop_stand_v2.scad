@@ -104,8 +104,34 @@ module lower_part(){
     
 }
 
-leg_part();
-//upper_shape();
-//rounding(type=1, r=20);
+
+module demo(){
+    
+    lower_part();
+    
+    translate([leg_offs_x1,thick_2+leg_offs_x1,0])
+    rotate([90,0,0])
+    upper_part();
+    
+    translate([leg_offs_x1,width-leg_offs_x1,0])
+    rotate([90,0,0])
+    upper_part();
+}
+
+//try
+//cube([20,  thick_2, thick_1]);
+//translate([-2,-2,0])
+//cube([2,24,10]);
+
+// try
+//intersection(){
+//translate([180,0,0]) cube([50,220,20]);
+//
 //upper_part();
+//}
+
+
+
+demo();
 //lower_part();
+//upper_part();
