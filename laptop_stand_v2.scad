@@ -1,12 +1,12 @@
 
 // inputs
-angle=30; 
-length = 200; 
+angle=35; 
+length = 190; 
 width = 200;
 
 //calculated from `angle` anf `length` using
 //see: https://www.calculator.net/right-triangle-calculator.html
-height = 115.47;
+height = 133;
 
 //tweaks
 //note: thicknesses 20x10
@@ -138,16 +138,16 @@ module demo(){
 //cube([2,24,10]);
 
 // try 2
-intersection(){
-translate([170,0,0]) cube([40,30,10]);
-
-upper_part();
-}
+//intersection(){
+//translate([170,0,0]) cube([40,30,10]);
+//
+//upper_part();
+//}
 
 //try 3
 //leg_part();
 
 
-//demo();
+demo();
 //lower_part();
 //upper_part();
