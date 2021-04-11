@@ -95,6 +95,7 @@ module leg_part(){
         }
 
         //the cutout
+        //todo: use offset command!
         spacer = 0.4;    
         translate([leg_offs_x1-spacer,leg_offs_x1-spacer,5])
         cube([thick_1+2*spacer, thick_2+2*spacer,thick_2]);
