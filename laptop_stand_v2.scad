@@ -17,12 +17,32 @@ thick_2 = 20;
 leg_offs_x1 = 5; // bottom offset
 leg_offs_x2 = 3; // top offset
 
+
+module front_stopper_shape(){
+        //the front stopper
+
+    //color("red") {
+    //the front stopper
+    translate([length,0])
+    rotate([0,0,-angle])
+    //translate([-thick_1,-0.0001]) //note: not closed shape otherwise
+    translate([-thick_1,0]) 
+    union(){
+        translate([0,thick_1])
+            corner_shape(type=0, r=thick_1);
+        square([thick_1,thick_1]);
+        
+        rotate([0,0,90])
+            corner_shape(type=1, r=thick_1);
+   // }
+    }
+}
 module upper_shape() {
     
     difference(){
         hull() {
-            offset(thick_1)
-            offset(-thick_1)
+            offset(thick_1/4)
+            offset(-thick_1/4)
             polygon([[0,0], [0, height], [length,0]]);
             
             square([0.001,0.001]);
@@ -45,20 +65,7 @@ module upper_shape() {
         }
     }
     
-    //the front stopper
-
-    translate([length -thick_1,0])
-
-    union(){
-        translate([0,thick_1*1.5]){
-            corner_shape(type=0, r=thick_1);
-        }
-        square([thick_1,thick_1*1.5]);
-        translate([-0.5*thick_1,0])
-            square([0.5*thick_1,thick_1]);
-        
-    }
-
+    front_stopper_shape();
 }
 
 module upper_shape_old() {
@@ -77,18 +84,7 @@ module upper_shape_old() {
     square([thick_1,height-thick_1-5]);
     
     //the front stopper
-    translate([length,0])
-    rotate([0,0,-angle])
-    translate([-thick_1,-0.0001]) //note: not closed shape otherwise
-    union(){
-        translate([0,thick_1])
-            corner_shape(type=0, r=thick_1);
-        square([thick_1,thick_1]);
-        
-        rotate([0,0,90])
-            corner_shape(type=1, r=thick_1);
-    }
-
+    front_stopper_shape();
  
 }
 
