@@ -18,6 +18,50 @@ leg_offs_x1 = 5; // bottom offset
 leg_offs_x2 = 3; // top offset
 
 module upper_shape() {
+    
+    difference(){
+        hull() {
+            offset(thick_1)
+            offset(-thick_1)
+            polygon([[0,0], [0, height], [length,0]]);
+            
+            square([0.001,0.001]);
+            translate([length,0])
+            square([0.001,0.001]);
+        }
+        
+        offs = thick_1/sin(90-angle);
+    
+        hull(){
+        
+            offset(thick_1)
+            offset(-2*thick_1)
+            polygon([[0,0], [0, height], [length,0]]);
+
+            translate([thick_1,-offs])
+            square([0.001,0.001]);
+            translate([length,-offs])
+            square([0.001,0.001]);
+        }
+    }
+    
+    //the front stopper
+
+    translate([length -thick_1,0])
+
+    union(){
+        translate([0,thick_1*1.5]){
+            corner_shape(type=0, r=thick_1);
+        }
+        square([thick_1,thick_1*1.5]);
+        translate([-0.5*thick_1,0])
+            square([0.5*thick_1,thick_1]);
+        
+    }
+
+}
+
+module upper_shape_old() {
 
     //the top section
     //note: need to get a triagle with `height`=offset1     
@@ -131,7 +175,7 @@ module demo(){
 }
 
 
-//upper_part();
+
 //try 1
 //cube([20,  thick_2, thick_1]);
 //translate([-2,-2,0])
@@ -148,6 +192,7 @@ module demo(){
 //leg_part();
 
 
-demo();
+upper_shape();
+//demo();
 //lower_part();
 //upper_part();
