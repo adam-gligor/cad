@@ -18,25 +18,30 @@ leg_offs_x1 = 5; // bottom offset
 leg_offs_x2 = 3; // top offset
 
 
-module front_stopper_shape(){
-        //the front stopper
 
-    //color("red") {
+module front_stopper_shape(){
+    stopper_height = 2*thick_1+3;   
+
     //the front stopper
     translate([length,0])
     rotate([0,0,-angle])
     //translate([-thick_1,-0.0001]) //note: not closed shape otherwise
     translate([-thick_1,0]) 
     union(){
-        translate([0,thick_1])
-            corner_shape(type=0, r=thick_1);
-        square([thick_1,thick_1]);
         
+        //square
+        square([thick_1,stopper_height-thick_1]);
+                
+        // top corner
+        translate([0,stopper_height-thick_1])
+            corner_shape(type=0, r=thick_1);        
+        
+        //bottom corner
         rotate([0,0,90])
             corner_shape(type=1, r=thick_1);
-   // }
     }
 }
+
 module upper_shape() {
     
     difference(){
@@ -189,6 +194,7 @@ module demo(){
 
 
 upper_shape();
+
 //demo();
 //lower_part();
 //upper_part();
