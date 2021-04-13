@@ -1,24 +1,37 @@
-//input
+// A customizable laptop stand 
 
-ANGLE=35; 
-LENGTH = 190; //of the base
-WIDTH = 200; //of the base
 
-//the other side of the triangle
+// Module naming convenitions:
+//  - xxx_shape is a 2D shape 
+//  - xxx_part is a 3D part
+//  - the stand is made of one `lower_rail_part` and two `upper_rail_part`s
+//  - the upper rail's front section, that stops the laptop from falling is called the `tip`
+//  - the lower rail's section for inserting the upper rail is called `shoe`  
+
+
+//Input parameters:
+
+ANGLE=35; // the angle
+LENGTH = 190; //the total length of the base
+WIDTH = 200; //the total width of the base
+
+//side of the triangle calculated from the other side and an angle
 HEIGHT = sqrt((LENGTH*LENGTH*sin(ANGLE)*sin(ANGLE))/(1-sin(ANGLE)*sin(ANGLE)));
 echo(HEIGHT);
 
-//tweaks 
+//Parameters to tweak:
 
-//rails size
+//the size of the rails
 THICK1 = 10;
 THICK2 = 20;
+
 //offsets for the socket
 SHOE_OFFS1 = 5;
 SHOE_OFFS2 = 3;
+SHOE_SPACER = 0.2;
+
 //extra height for the tip section
 TIP_OFFS = 3; 
-
 
 
 module upper_rail_shape() {
@@ -100,7 +113,7 @@ module shoe_part(){
        
        //the cutout + 0.2 spacer
        translate([0,0,5])
-       scale([(THICK1+2*0.2)/THICK1, (THICK2+2*0.2)/THICK2,1])
+       scale([(THICK1+2*SHOE_SPACER)/THICK1, (THICK2+2*SHOE_SPACER)/THICK2,1])
        cube([THICK1,THICK2,THICK2]);
     }
 }
@@ -132,7 +145,8 @@ module demo() {
 }
 
 
+//uncomment here to print the parts
 //upper_rail_part();
-//upper_rail_shape();
 //lower_rail_part();
+
 demo();
