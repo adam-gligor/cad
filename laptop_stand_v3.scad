@@ -11,13 +11,16 @@
 
 //Input parameters:
 
-ANGLE=35; // the angle
-LENGTH = 190; //the total length of the base
+ANGLE=45; // the angle
+LENGTH = 170; //the total length of the base
 WIDTH = 200; //the total width of the base
 
 //side of the triangle calculated from the other side and an angle
 HEIGHT = sqrt((LENGTH*LENGTH*sin(ANGLE)*sin(ANGLE))/(1-sin(ANGLE)*sin(ANGLE)));
+
 echo(HEIGHT);
+echo(sqrt(LENGTH*LENGTH+HEIGHT*HEIGHT));
+
 
 //Parameters to tweak:
 
@@ -146,7 +149,7 @@ module demo() {
 
 
 //uncomment here to print the parts
-//upper_rail_part();
+upper_rail_part();
 //lower_rail_part();
 
-demo();
+//demo();
