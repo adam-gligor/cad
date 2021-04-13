@@ -38,7 +38,7 @@ module upper_rail_shape() {
         OFFS = THICK1/sin(90-ANGLE);
         
         hull(){    
-            offset(THICK1)
+            offset(THICK1,, $fn=50)
             offset(-2*THICK1)
             polygon([[0,0], [0,HEIGHT], [LENGTH, 0]]);
 
@@ -54,24 +54,24 @@ module upper_rail_shape() {
     translate([LENGTH,0])
     rotate(-ANGLE)
     translate([-THICK1,0])
-    stopper_shape();
+    tip_shape();
 }
 
 
-module stopper_shape(){
+module tip_shape(){
     union(){
         //the lower rounding
         translate([-THICK1,0])
         difference(){
             square([THICK1, THICK1]);
-            translate([0, THICK1]) circle(r=THICK1);
+            translate([0, THICK1]) circle(r=THICK1, $fn=50);
         }
 
         // the upper rounding
         translate([0,THICK1+TIP_OFFS])
         intersection(){
             square([THICK1, THICK1]);
-            circle(r=THICK1);
+            circle(r=THICK1, $fn=50);
         }
         
         square([THICK1,THICK1+TIP_OFFS]);
