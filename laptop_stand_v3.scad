@@ -34,7 +34,7 @@ SHOE_OFFS2 = 3;
 SHOE_SPACER = 0.2;
 
 //extra height for the tip section
-TIP_OFFS = 3; 
+TIP_OFFS = 2; 
 
 
 module upper_rail_shape() {
