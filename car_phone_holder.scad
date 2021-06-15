@@ -13,11 +13,17 @@ module shape(){
 }
 
 
-translate([0,0,-4])
+translate([0,-3,-4])
 linear_extrude(height = 8) {
     shape();
     mirror([1,0,0]) 
     shape();
 }
 
-shape();
+//shape();
+
+translate([0,-(15/2)-1.5+1.2,0])
+cube([10.5,3,10.5], center=true);
+
+translate([0,-5,0])
+cube([10.5,5,10.5], center=true);
