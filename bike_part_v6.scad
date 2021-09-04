@@ -39,7 +39,7 @@ module support() {
             
             //the rounding
             translate([0,-WDT/2,-THK]) linear_extrude(height=THK*2) 
-                offset(r=1,$fn=20) offset(r=-1,$fn=20) square([LEN, WDT]);
+                offset(r=2,$fn=20) offset(r=-2,$fn=20) square([LEN, WDT]);
             
         }
         //the crew holes    
