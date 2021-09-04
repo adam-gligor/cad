@@ -27,7 +27,7 @@ module support() {
 
     DIA = 41; // the bicycle frame tube
     THK = 3; // the thickness of the piece 
-    LEN = 12 + 1 + 24; // 37 the length of the piece
+    LEN = 34; // 37 the length of the piece
     WDT = 10; 
     
     difference() {  
@@ -87,6 +87,6 @@ module stopper() {
 
 
 support();
-translate([(37-13)/2,0,6])
+translate([(34-13)/2,0,6])
 stopper(); 
 
