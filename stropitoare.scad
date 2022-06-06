@@ -3,40 +3,30 @@
 
 D = 26.5;
 R = D/2;
+W = 1.5;
 $fn=100;
-//module shape()
-//    polygon([[0,0], [R,0], [R, 15], [2*R , 2*R],[2*R , 2*R + 5], [0, 2*R + 5] ]);
-//
-//
-//
-////difference(){
-//shape();
-//color("red"){
-//    //translate([-1.2,00]) 
-//    scale([1,1.03]) 
-//    shape();
-//}
-////}
 
-//cylinder(d=D, h=10);
-//
-//hull(){
-//
-//translate([0,0, 10]) cylinder(d=D, h=0.1);
-//
-//translate([0,0, 20]) cylinder(d=1.4*D, h=5);
-//
-//}
+module shape()
+    polygon([
+        [0,0], [R+W,0], 
+        [R+W, 15], 
+        [1.5*R+W , 30],  
+        [1.5*R, 30],
+        [R-0.3, 15], [R , 0]
+    ]);
 
-diameter = 1.5*D;
-linear_extrude(1)
-    difference() {
-        circle(d = diameter);
-        
-        for(j = [1:1:5])
-        for(i = [0 :6+ j*6: 360 ])
-          rotate(i)
-            translate([20-3*j, 0])
-              circle(d = 2.4);
- 
-    }
+rotate_extrude(angle = 360)
+shape();
+
+//diameter = 1.5*D;
+//linear_extrude(1)
+//    difference() {
+//        circle(d = diameter);
+//        
+//        for(j = [1:1:5])
+//        for(i = [0 :6+ j*6: 360 ])
+//          rotate(i)
+//            translate([20-3*j, 0])
+//              circle(d = 2.4);
+// 
+//    }
