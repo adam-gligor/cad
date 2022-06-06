@@ -15,18 +15,20 @@ module shape()
         [R-0.3, 15], [R , 0]
     ]);
 
+translate([0,0,30 +2])
+rotate([0,180,0])
 rotate_extrude(angle = 360)
 shape();
 
-//diameter = 1.5*D;
-//linear_extrude(1)
-//    difference() {
-//        circle(d = diameter);
-//        
-//        for(j = [1:1:5])
-//        for(i = [0 :6+ j*6: 360 ])
-//          rotate(i)
-//            translate([20-3*j, 0])
-//              circle(d = 2.4);
-// 
-//    }
+diameter = 1.5*D +2*W;
+linear_extrude(2)
+    difference() {
+        circle(d = diameter);
+        
+        for(j = [1:1:5])
+        for(i = [0 :6+ j*6: 360 ])
+          rotate(i)
+            translate([20-3*j, 0])
+              circle(d = 2.4);
+ 
+    }
