@@ -18,7 +18,7 @@ module xxx(){
 }
 
 module torus(){
-    rotate_extrude(angle=360) translate([-23.5,H1/2])  circle(d=25);
+    rotate_extrude(angle=360, $fn=100) translate([-23.5,H1/2])  circle(d=25);
 }
 
 difference(){
