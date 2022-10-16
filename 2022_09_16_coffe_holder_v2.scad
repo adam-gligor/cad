@@ -12,20 +12,17 @@ $fn=100;
 
 
 difference(){
-cylinder(h=25, r=R1);
-cylinder(h=25, r1=R01, r2=R11);
+cylinder(h=20, r=R1);
+cylinder(h=20, r1=R01, r2=R11);
 }
 
 
-//difference(){
-//cylinder(h=1, r=R+3);
-//cylinder(h=1, r=R);
-//}
+
 
 
 //bottom insert
 translate([0,0,-5])
 difference(){
-cylinder(h=6, r=R0);
-cylinder(h=6, r=R01);
+cylinder(h=5, r=R0);
+cylinder(h=5, r=R01);
 }
