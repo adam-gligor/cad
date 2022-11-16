@@ -40,14 +40,14 @@ module funel(){
     }
 
     // filter holder
-    translate([0,0,-5]) {
-    cylinder3(RS,RS,2, ofe=ROFS+1.4);
-    translate([0,0,+2])
-    cylinder3(RS,RS,1, ofs=ROFS+1.4, ofe=ROFS+1.4);
-    }
+    //translate([0,0,-2]) 
+    cylinder3(RS-1,RS+1,3, ofe=ROFS);
+    //translate([0,0,+2])
+    //cylinder3(RS+1,RS+1,1, ofs=ROFS, ofe=ROFS+1.4);
+    //}
 
     // funel
-    cylinder3(RS,RE, H2, roty=30);
+    //cylinder3(RS,RE, H2, roty=30);
 }
 
 
@@ -55,8 +55,6 @@ module filter(){
     hf = 1.2;
     rf = RS-ROFS-0.4; // <=RS
     
-    //
-    //translate([RS,0,0]) cylinder(r=0.5,h=2);
     
     //rim
     color("red")
@@ -85,6 +83,6 @@ module filter(){
     }
 }
 
-//funel();
+funel();
 //translate([0,0,-2])
-filter();
+//filter();
