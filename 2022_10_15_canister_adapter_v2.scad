@@ -1,5 +1,5 @@
 RS = 25/2; // mm - outer size of start (fits the car)
-RE = 28; // mm - outer size of the end
+RE = 27; // mm - outer size of the end
 WL = 1.2; //mm - default wall thickness 
 
 H1=50;
@@ -54,8 +54,13 @@ module funel(){
 
     
     //middle part 
-    tube(ra=RS+1, rb=RS+1, wa=WL+1+1, wb=WL+1+1, h=2);
-    translate([0,0,-2]) tube(ra=RS, rb=RS+1, wb=WL+1+1, h=2);
+    translate([0,0,-2]) 
+        tube(ra=RS, rb=RS+1, wb=WL+1, h=2);
+//    
+    tube(ra=RS+1, rb=RS+1, wa=WL+1, wb=WL+1, h=3);
+//    
+//    translate([0,0,2]) 
+//        tube(ra=RS+1, rb=RS,  wa=WL+1, transb=[1,0,0], h=2);
 
     // top part
     tube(ra=RS,rb=RE, h=H2, rotb=[0,30,0], transb=[RE-RS,0,0]);
