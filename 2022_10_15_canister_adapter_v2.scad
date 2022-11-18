@@ -46,6 +46,10 @@ rotb=[0,0,0], transb=[0,0,0], // rotate and translate b
 //tube(ra=10, rb=10,h=10, rota=[-20,-20,0],rotb=[20,20,0]);
 //tube(ra=20, rb=10,h=10, wb=3, transb=[0,-10,0]); //ra-rb
 
+module filter() {
+    color("red")
+    tube(ra=RS+2-2*WL,rb=RS+2-2*WL, wa=2,wb=2, h=1.6);
+}
 
 
 module funel(){
@@ -57,9 +61,13 @@ module funel(){
  
     translate([0,0,-3]) tube(ra=RS, rb=RS+2, wb=3*WL, h=3);
 
+    
     // top part
     tube(ra=RS+2,rb=RE, wa=2*WL, h=H2, rotb=[0,30,0], transb=[RE-RS,0,0]);
 }
 
 
-funel();
+//funel();
+
+//translate([0,0,-2.5]) 
+filter();
