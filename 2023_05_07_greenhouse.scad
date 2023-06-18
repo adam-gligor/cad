@@ -44,7 +44,7 @@ module corner_v1(){
 
 module corner_v2(){
     R = 13.5/2;
-    RR = R- 0.025*(R);
+    RR = R;//- 0.025*(R);
     L1 = RR;
     L2 = 20-RR;
     
@@ -59,9 +59,9 @@ module corner_v2(){
     translate([L1,0,0]) rotate([0,90,0]) cylinder(h=L2, r=RR);
     translate([0,L1,0]) rotate([-90,0,0]) cylinder(h=L2, r=RR);
     
-    translate([0,0,L1+L2]) sphere(r=RR);
-    translate([L1+L2,0,0]) sphere(r=RR);
-    translate([0,L1+L2,0]) sphere(r=RR);
+    translate([0,0,L1+L2]) rotate([0,0,0]) cylinder(h=2, r1=RR, r2=RR-1.5);
+    translate([L1+L2,0,0]) rotate([0,90,0]) cylinder(h=2, r1=RR, r2=RR-1.5);
+    translate([0,L1+L2,0]) rotate([-90,0,0]) cylinder(h=2, r1=RR, r2=RR-1.5);
 }
 
 corner_v2();
