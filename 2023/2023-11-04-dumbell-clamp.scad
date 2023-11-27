@@ -1,7 +1,7 @@
 D = 27; // normally is 28 ; // mm 
-D2 = D +2;
+D2 = D + 8;
 R = D/2;
-H = 5;
+H = 10;
 
 $fn=100;
 
@@ -11,7 +11,7 @@ union(){
 cylinder(d=D2, h=H);
 
 translate([R,0,0])
-cylinder(d=6, h=H);
+cylinder(d=13, h=H);
 }
 
 union(){
