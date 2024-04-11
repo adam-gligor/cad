@@ -22,6 +22,26 @@ module xxx(x,y,z, hole){
 
 
 
+module foo2(){
+XX = 16;
+YY = Y1;
+ZZ = 3;
+PXX = (XX-X1)/2;
+
+//difference(){    
+//translate([-PXX,0,0]) cube([XX,YY,2*ZZ]);
+//translate([0,0,0]) cube([X1,Y1,2*ZZ]);
+//}
+X3 = 2.6;
+Y4 = X3*2;
+   difference(){
+translate([-X3,0,0]) cube([X3,Y1,ZZ*2+Y4/2]);
+translate([-Y4/2,Y1,Y4/2+ZZ*2]) rotate([90,0,0]) cylinder(d=Y4,h=Y1);
+   }
+
+}
+
+
 px = 2.4;
 py=2.4;
 pz=2.4;
@@ -39,18 +59,7 @@ OZ = Z1-pz;
         
     }
 
-XX = 16;
-YY = Y1;
-ZZ = 3;
-PXX = (XX-X1)/2;
+foo2();
 
-difference(){    
-translate([-PXX,0,0]) cube([XX,YY,2*ZZ]);
-translate([0,0,0]) cube([X1,Y1,2*ZZ]);
-}
+translate([X1,Y1,0]) rotate([0,0,-180]) foo2();
 
-
-//DD = XX+10;
-//%rotate([90,0,0]) translate([0,0,0])   cylinder(d=DD,h=YY);
-//    
-//translate([-XX/2,-YY/2,0])    cube([XX,YY,2*ZZ]);
