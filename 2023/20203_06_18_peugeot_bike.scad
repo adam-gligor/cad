@@ -64,17 +64,19 @@ module v2(){
 
 module v3(){
     
-    H =8;
     R = 3; // D=6 holes
-    P = 8;
-    HP = 4;
+    HP = 4; // thickness   
+    X = R+HP; // thickness on X axis
     
-    X = R+HP;
-
+    LY = 8 *X  ; // lentgth on Y axis (logically the height) initiailly 4x
+    
     difference() {
         union(){
+            
+            // circle piece
             translate([0,0,X]) rotate([0,90,0]) cylinder(h=X, r=X);
             
+            // connector 1
             hull(){
                 translate([0,0,0]) cube([X,0.1,2*X]);
                 translate([0,2*X,0]) cube([X,0.1,X]);
@@ -82,9 +84,12 @@ module v3(){
             }
             
 
-        translate([0,2*X,0]) cube([X,1.2*X,X]);
+            // connector 2
+            translate([0,X,0]) cube([X,LY,X]);
 
-            translate([1.5*X,4*X,0])
+
+            // oval piece
+            translate([1.5*X,LY,0])
             hull(){
                 translate([0,0,0]) rotate([0,0,0]) cylinder(h=X, r=X);
                 translate([-1.2*X,0,0]) rotate([0,0,0]) cylinder(h=X, r=X);
@@ -95,10 +100,10 @@ module v3(){
            
         }
         
-    //holes
+        //holes
         union(){
-            translate([0,0,R+HP]) rotate([0,90,0]) cylinder(h=H, r=R);
-            translate([1.5*X,4*X,0])
+            translate([0,0,R+HP]) rotate([0,90,0]) cylinder(h=X, r=R);
+            translate([1.5*X,LY,0])
             hull(){
                 translate([-0*X,0,0]) rotate([0,0,0]) cylinder(h=X, r=R);
                 translate([-1.2*X,0,0]) rotate([0,0,0]) cylinder(h=X, r=R);
