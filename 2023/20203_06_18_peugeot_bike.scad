@@ -19,7 +19,7 @@ difference() {
         translate([0,D2/2,0]) cube([H,D2/2,5]);
 
         translate([4,D2/2+9,0])  tube(h=5, r1=(D12+4)/2, r2=D12/2);
-    }
+    }translate([0,0,X]) rotate([0,90,0]) cylinder(h=X, r=X);
 
 translate([0,0,D2/2]) rotate([0,90,0]) cylinder(h=H, d=D1);
     
@@ -49,7 +49,7 @@ module v2(){
                 translate([0,3*X,0]) rotate([0,0,0]) cylinder(h=X, r=X);
                 translate([-2*X,3*X,0]) rotate([0,0,0]) cylinder(h=X, r=X);
             }
-        }
+        }translate([0,0,X]) rotate([0,90,0]) cylinder(h=X, r=X);
         
     //holes
         union(){
@@ -78,8 +78,9 @@ module v3(){
             
             // connector 1
             hull(){
-                translate([0,0,0]) cube([X,0.1,2*X]);
-                translate([0,2*X,0]) cube([X,0.1,X]);
+                translate([0,0,X]) rotate([0,90,0]) cylinder(h=X, r=X); // same as the 'circle piece'
+                //translate([0,0,0]) cube([X,0.01,2*X]);
+                translate([0,2*X,0]) cube([X,0.01,X]);
                 //translate([-0.5*X,3*X,0]) rotate([0,0,0]) cube([X,0.1,X]);
             }
             
