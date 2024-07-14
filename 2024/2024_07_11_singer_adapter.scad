@@ -23,32 +23,32 @@ difference() {
     }
 }
 
-// inner cylinder
-translate([0,0,h/2]) 
+// enforcement
+rotate([0,0,45])
 difference(){
-    cylinder(d1=d3+2, d2=d2, h=h/2);
-    cylinder(d1=d3, d2=d2-2, h=h/2);
-}
+    intersection(){
+         difference() {
+             union(){
+                translate([0,0,h/2]) cube([d1,2,h], center=true);
+                translate([0,0,h/2]) rotate([0,0,90]) cube([d1,2,h], center=true);
+                cylinder(d=d3+2, h = h);
+            }
+            
+            cylinder(d=d3, h = h);
 
-// enforcement 
- rotate([0,0,945]) difference() { 
-    
-    intersection(){       
-        cylinder(d1=d1, d2=d2, h = h);
-        translate([0,0,h/2]) union(){
-            cube([d1,2,h], center=true);
-            rotate([0,0,90]) cube([d1,2,h], center=true);    
         }
+        cylinder(d1=d1, d2=d2, h = h);
     }
-    
-    union() {
-    cylinder(d1=d1-4, d2=d2-8, h = h);
-    
-    translate([0,0,h/2]) cylinder(d1=d3, d2=d2-2, h=h/2);
+    union(){
+        cylinder(d1=d1-4, d2=d2-4, h = h-10);
+        //translate([0,0,h-2]) cylinder(d1=d3, d2=d2-2,h=2);
     }
-    
-   // translate([0,0,h/2]) cylinder(d1=d3+2, d2=d2, h=h/2);
 }
-    
 
+//cap
 
+translate([0,0,h-3]) 
+difference(){
+    cylinder(d1=d3+2, d2=d2,h=3);
+    cylinder(d1=d3, d2=d2-2,h=3);
+}
