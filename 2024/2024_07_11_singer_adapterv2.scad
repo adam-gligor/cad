@@ -1,5 +1,5 @@
 
-$fn=25;
+$fn=50;
 d1 = 34;
 d2 = 26;
 d3 = 7;
@@ -32,8 +32,9 @@ module base(){
     difference(){
         union(){
             translate([0,0,1]) cylinder(d=d, h=1);
-            cylinder(d1=d-2, d2=d, h=1);
+            
             translate([0,0,-1]) cylinder(d=d3+4,h=1);
+            cylinder(d1=d-2, d2=d, h=1);
             
 
         }
@@ -67,14 +68,15 @@ module foot() {
     
     difference() {
         union(){
-            cylinder(d=d+5,h=2);
+            cylinder(d1=d, d2=d+2,h=1);
+            translate([0,0,1]) cylinder(d1=d+2, d2=d+2,h=1);
             cylinder(d=d,h=4);
         }
-         cylinder(d=d-5,h=1);
+         //cylinder(d=d-5,h=1);
     }
 }
 
-//foot();
+foot();
 
-translate([0,0,2])  rotate([0,0,45]) holder();
- base();
+//translate([0,0,2])  rotate([0,0,45]) holder();
+// base();
