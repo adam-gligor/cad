@@ -43,38 +43,58 @@ module p1(d, bh, tk) {
 
 d = bw + 2*tk;
 
-// part 1 
-union(){
 
-    intersection(){
-        p1(d,bh,tk);
-        cylinder(r=d,h=bh);
+difference(){
+    
+    union(){
+        
+    // part 1 
+
+    translate([-tk*0.45,-tk*0.45,0])
+    union(){
+        intersection(){
+            p1(d,bh,tk);
+            cylinder(r=d,h=bh);
+        }
+
+
+        translate([-al,d-tk,0]) cube([al,tk,bh]);
+        translate([d-tk,-al,0]) cube([tk,al,bh]);
+    }
+//
+//
+//
+
+    // part 2
+    translate([tk*0.65,tk*0.65,0]){
+
+        difference(){    
+            rotate([0,0,180]) p1(d,bh,tk+4);
+
+            linear_extrude(height=bh) polygon(points=[[-d,-d],[-d,0],[0,-d]]);
+        }
+
+        translate([-al*0.9-tk*1.4,-tk,0]) cube([al*0.9,tk,bh]);
+        translate([-tk,-al*0.9-tk*1.4, 0]) cube([tk,al*0.9,bh]);
+    }
+    
+    }
+    
+
+    // screw 
+    translate([0,0,bh/2])
+    rotate([90,0,-45]) 
+    difference(){   
+        cylinder(d=10,h=100,center=true);
+
+    //translate([0,0,40]) 
+        difference(){
+            cylinder(d=10,h=20,center=true);
+            cylinder(d=6,h=20,center=true);
+        }
     }
 
-
-    translate([-al,d-tk,0]) cube([al,tk,bh]);
-    translate([d-tk,-al,0]) cube([tk,al,bh]);
 }
-
-
-
-
-// part 2
-translate([(tk+1.9),(tk+1.9),0]){
-
-    difference(){    
-        rotate([0,0,180]) p1(d,bh,tk+4);
-
-        linear_extrude(height=bh) polygon(points=[[-d,-d],[-d,0],[0,-d]]);
-    }
-
-translate([-al*0.9-tk*1.4,-tk,0]) cube([al*0.9,tk,bh]);
-translate([-tk,-al*0.9-tk*1.4, 0]) cube([tk,al*0.9,bh]);
-
-
-}
-
-
 
 // --
 
