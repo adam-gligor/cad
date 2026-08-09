@@ -3,7 +3,7 @@ bh = 20; // max board width
 
 bw = 10;  // max board width
 
-al = 50; // arm length
+al = 30; // arm length
 
 tk = 10; // thickners
 
@@ -43,15 +43,37 @@ module p1(d, bh, tk) {
 
 d = bw + 2*tk;
 
+// part 1 
 union(){
 
-p1(d,bh,tk);
-translate([-d,d-tk,0]) cube([al,tk,bh]);
-translate([d-tk,-d,0]) cube([tk,al,bh]);
+    intersection(){
+        p1(d,bh,tk);
+        cylinder(r=d,h=bh);
+    }
+
+
+    translate([-al,d-tk,0]) cube([al,tk,bh]);
+    translate([d-tk,-al,0]) cube([tk,al,bh]);
 }
 
 
-translate([(tk+1.9),(tk+1.9),0]) rotate([0,0,180]) p1(d,bh,tk+4);
+
+
+// part 2
+translate([(tk+1.9),(tk+1.9),0]){
+
+    difference(){    
+        rotate([0,0,180]) p1(d,bh,tk+4);
+
+        linear_extrude(height=bh) polygon(points=[[-d,-d],[-d,0],[0,-d]]);
+    }
+
+translate([-al*0.9-tk*1.4,-tk,0]) cube([al*0.9,tk,bh]);
+translate([-tk,-al*0.9-tk*1.4, 0]) cube([tk,al*0.9,bh]);
+
+
+}
+
 
 
 // --
