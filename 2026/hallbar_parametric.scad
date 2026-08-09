@@ -3,7 +3,7 @@ bh = 20; // max board width
 
 bw = 10;  // max board width
 
-al = 30; // arm length
+al = 50; // arm length
 
 tk = 10; // thickners
 
@@ -31,9 +31,8 @@ tk = 10; // thickners
 //tk 
 
 
-module p1(bw, bh, tk) {
+module p1(d, bh, tk) {
 
-d = bw + 2*tk;
 
     difference() {
         cube([d,d,bh]);
@@ -42,9 +41,17 @@ d = bw + 2*tk;
 }
 
 
-p1(bw,bh,tk);
+d = bw + 2*tk;
 
-translate([(tk+1.9),(tk+1.9),0]) rotate([0,0,180]) p1(bw,bh,tk+4);
+union(){
+
+p1(d,bh,tk);
+translate([-d,d-tk,0]) cube([al,tk,bh]);
+translate([d-tk,-d,0]) cube([tk,al,bh]);
+}
+
+
+translate([(tk+1.9),(tk+1.9),0]) rotate([0,0,180]) p1(d,bh,tk+4);
 
 
 // --
