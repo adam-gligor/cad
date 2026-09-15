@@ -11,55 +11,73 @@ module s(){
 
 
 
+
+
 //difference(){
-//    union(){
-//    cube ([30,5,20]);
-//
-//    cube ([5,30,20]);
-//
-//
-//    translate([0,25,0]) cube ([30,5,20]);
-//
-//    translate([25,0,0]) cube ([5,30,20]);
-//
-//
-//    translate([0,0,0]) cube([30,30,5]);
-//    }
-//
-//    translate([5,15,10])  rotate([0,-90,0])  s();
-//
-//    translate([15,5,10])  rotate([90,90,0]) s();
-//
-//
-//    translate([30,15,10]) rotate([0,-90,0]) cylinder(d=8,h=10);
-//
-//    translate([15,30,10])  rotate([90,90,0]) cylinder(d=8,h=10);
-//
 //    
+//union(){
+//cube([50,10,5]);
+//cube([10,50,5]);
+//}
+//
+//translate([20,5,0]) s();
+//translate([40,5,0]) s();
+//
+//translate([5,20,0]) s();
+//translate([5,40,0]) s();
+//}
+//
+//
+//translate([10,10,-10])
+//difference(){
+// cube([40,40,15]);
+//
+//translate([10,10,0]) cube([20,20,10]);
 //}
 
-
+module c(){
 difference(){
-    
-union(){
-cube([50,10,5]);
-cube([10,50,5]);
+linear_extrude(height=3) polygon(points=[[0,0],[30,0], [0,30]]);
+
+translate([5,15,0]) s();
+translate([15,5,0]) s();
 }
-
-translate([20,5,0]) s();
-translate([40,5,0]) s();
-
-translate([5,20,0]) s();
-translate([5,40,0]) s();
 }
 
 
-translate([10,10,-10])
-difference(){
- cube([40,40,15]);
+translate([0,0,0]) c();
 
-translate([10,10,0]) cube([20,20,10]);
-}
+translate([32,0,0]) c();
 
-//translate([10,10,0])cube([40,5,20]);
-//translate([10,10,0])cube([5,40,20]);
+translate([64,0,0]) c();
+
+translate([96,0,0]) c();
+
+translate([31,31,0]) rotate([0,0,-180]) c();
+
+translate([63,31,0]) rotate([0,0,-180]) c();
+
+translate([95,31,0]) rotate([0,0,-180]) c();
+
+translate([126,31,0]) rotate([0,0,-180]) c();
+
+
+
+//translate([0,32,0]) {
+//translate([0,0,0]) c();
+//
+//translate([32,0,0]) c();
+//
+//translate([64,0,0]) c();
+//
+//translate([96,0,0]) c();
+//
+//translate([31,31,0]) rotate([0,0,-180]) c();
+//
+//translate([63,31,0]) rotate([0,0,-180]) c();
+//
+//translate([95,31,0]) rotate([0,0,-180]) c();
+//
+//translate([126,31,0]) rotate([0,0,-180]) c();
+//    
+//}
