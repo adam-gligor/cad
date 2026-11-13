@@ -1,102 +1,312 @@
-```scad
-// ==================================================
-// PARAMETRIC ELECTRONICS ENCLOSURE
-// SIDE OPENING WITH SNAP-FIT LID
-// ==================================================
+// ============================================
+// SIMPLE SCREW-MOUNTED ELECTRONICS ENCLOSURE
+// Front removable lid
+// Two diagonal M3 screws
+// Integrated screw posts
+// Configurable ventilation
+// ============================================
 
+$fn = 64;
+
+// ============================================
 // INTERNAL DIMENSIONS
-xi = 85;
-yi = 25;
-zi = 30;
+// ============================================
 
-// WALL PARAMETERS
+inner_x = 85;
+inner_y = 25;
+inner_z = 45;
+
+// ============================================
+// WALLS
+// ============================================
+
 wall = 2;
+
+// ============================================
+// LID
+// ============================================
+
 lid_th = 2;
-corner_r = 3;
 
-// GRILLE PARAMETERS
-grille_opening = 16;
-grille_rib = 3;
-grille_margin = 5;
+screw_d = 3.2;
+screw_head_d = 6.2;
+screw_head_depth = 1.6;
 
-// SNAP FIT PARAMETERS
-clip_width = 7;
-clip_th = 0.8;
-clip_length = 7;
-clip_hook = 0.6;
-clip_clearance = 0.25;
+// ============================================
+// SCREW POSTS
+// ============================================
 
-// LID PARAMETERS
-lid_skirt_h = 5;
+boss_d = 9;
 
-// WALL MOUNTING
-mount_d = 5;
-mount_head_d = 9;
-mount_offset = 8;
+insert_hole_d = 4.6;
+insert_depth = 5.5;
 
-// SELECT PART
-// "body", "lid", "both"
+// Distance of screw posts from enclosure corners
+boss_offset = 6.5;
 
-part = "both";
+// ============================================
+// VENTILATION GRID
+// ============================================
 
-$fn = 48;
+vent_enabled = true;
 
-// DERIVED DIMENSIONS
-xo = xi + 2*wall;
-yo = yi + 2*wall;
-zo = zi + 2*wall;
+vent_size = 15;       // Square opening size
+vent_rib = 5;        // Material between openings
+vent_margin = 5;     // Border around ventilation
+
+// ============================================
+// CALCULATED DIMENSIONS
+// ============================================
+
+outer_x = inner_x + 2*wall;
+outer_y = inner_y + wall;
+outer_z = inner_z + 2*wall;
+
+// Screw positions
+screw1 = [
+    boss_offset,
+    boss_offset
+];
+
+screw2 = [
+    outer_x-boss_offset,
+    outer_z-boss_offset
+];
 
 
-// ==================================================
-// ROUNDED BOX
-// ==================================================
+// ============================================
+// MAIN ENCLOSURE
+// ============================================
 
-module rounded_box(x,y,z,r) {
-    hull() {
-        for(a=[r,x-r])
-            for(b=[r,y-r])
-                translate([a,b,0])
-                    cylinder(h=z,r=r);
+module enclosure() {
+
+    difference() {
+
+        union() {
+
+            // Outer shell with front opening
+            difference() {
+
+                cube([
+                    outer_x,
+                    outer_y,
+                    outer_z
+                ]);
+
+                // Internal cavity
+                translate([
+                    wall,
+                    -0.1,
+                    wall
+                ])
+                    cube([
+                        inner_x,
+                        inner_y+0.1,
+                        inner_z
+                    ]);
+            }
+
+            // Integrated screw posts
+            screw_posts();
+        }
+
+        // Insert holes
+        insert_holes();
+
+        // Ventilation
+        if (vent_enabled)
+            ventilation();
     }
 }
 
 
-// ==================================================
-// GRILLE CUTOUTS
-// ==================================================
+// ============================================
+// SCREW POSTS
+// ============================================
 
-module grille_cuts() {
+module screw_posts() {
 
-    // FRONT LARGE WALL
-    for(x=[
-        grille_margin:
-        grille_opening+grille_rib:
-        xo-grille_margin-grille_opening
-    ])
+    for (p = [screw1, screw2]) {
 
-    for(z=[
-        grille_margin:
-        grille_opening+grille_rib:
-        zo-grille_margin-grille_opening
-    ])
+        translate([
+            p[0],
+            0,
+            p[1]
+        ])
+            rotate([-90,0,0])
+                cylinder(
+                    h=inner_y,
+                    d=boss_d
+                );
+    }
+}
 
-        translate([x,-0.1,z])
+
+// ============================================
+// HEAT-SET INSERT HOLES
+// ============================================
+
+module insert_holes() {
+
+    for (p = [screw1, screw2]) {
+
+        translate([
+            p[0],
+            -0.1,
+            p[1]
+        ])
+            rotate([-90,0,0])
+                cylinder(
+                    h=insert_depth+0.1,
+                    d=insert_hole_d
+                );
+    }
+}
+
+
+
+// ============================================
+// SQUARE VENTILATION GRID
+// Left, right, top and bottom walls
+// No ventilation on front or rear
+// ============================================
+
+module ventilation() {
+
+    pitch = vent_size + vent_rib;
+
+    // Grid dimensions
+    nx = floor((inner_x - 2*vent_margin + vent_rib)/pitch);
+    ny = floor((inner_y - 2*vent_margin + vent_rib)/pitch);
+    nz = floor((inner_z - 2*vent_margin + vent_rib)/pitch);
+
+    // Centered grid positions
+    sx = wall + (inner_x - (nx*vent_size+(nx-1)*vent_rib))/2;
+    sy = wall + (inner_y - (ny*vent_size+(ny-1)*vent_rib))/2;
+    sz = wall + (inner_z - (nz*vent_size+(nz-1)*vent_rib))/2;
+
+    // ----------------------------------------
+    // LEFT AND RIGHT WALLS
+    // ----------------------------------------
+
+    for (side = [0,1])
+        for (y = [0:ny-1])
+            for (z = [0:nz-1])
+
+                translate([
+                    side == 0 ? -0.1 : outer_x-wall-0.1,
+                    sy+y*pitch,
+                    wall+sz-wall+z*pitch
+                ])
+                    cube([
+                        wall+0.2,
+                        vent_size,
+                        vent_size
+                    ]);
+
+    // ----------------------------------------
+    // TOP AND BOTTOM WALLS
+    // ----------------------------------------
+
+    for (side = [0,1])
+        for (x = [0:nx-1])
+            for (y = [0:ny-1])
+
+                translate([
+                    sx+x*pitch,
+                    sy+y*pitch,
+                    side == 0 ? -0.1 : outer_z-wall-0.1
+                ])
+                    cube([
+                        vent_size,
+                        vent_size,
+                        wall+0.2
+                    ]);
+}
+
+
+// ============================================
+// REMOVABLE FRONT LID
+// ============================================
+
+module lid() {
+
+    difference() {
+
+        // Lid plate
+        translate([
+            0,
+            -lid_th,
+            0
+        ])
             cube([
-                grille_opening,
-                wall+0.2,
-                grille_opening
+                outer_x,
+                lid_th,
+                outer_z
             ]);
 
+        // Screw holes and countersinks
+        for (p = [screw1,screw2]) {
 
-    // LEFT AND RIGHT WALLS
-    for(y=[
-        grille_margin:
-        grille_opening+grille_rib:
-        yo-grille_margin-grille_opening
+            // Through hole
+            translate([
+                p[0],
+                -lid_th-0.1,
+                p[1]
+            ])
+                rotate([-90,0,0])
+                    cylinder(
+                        h=lid_th+0.2,
+                        d=screw_d
+                    );
+
+            // Countersink
+            translate([
+                p[0],
+                -lid_th-0.01,
+                p[1]
+            ])
+                rotate([-90,0,0])
+                    cylinder(
+                        h=screw_head_depth,
+                        d1=screw_head_d,
+                        d2=screw_d
+                    );
+        }
+    }
+}
+
+
+// ============================================
+// OUTPUT
+// ============================================
+
+// Options:
+// "body"
+// "lid"
+// "both"
+
+show = "both";
+
+if (show == "body") {
+
+    enclosure();
+
+}
+else if (show == "lid") {
+
+    lid();
+
+}
+else {
+
+    enclosure();
+
+    // Separate lid preview
+    translate([
+        0,
+        -lid_th-5,
+        0
     ])
-
-    for(z=[
-        grille_margin:
-        grille_opening+grille_rib:
-        zo-grille_margin-grille_opening
-    ]) {
+        lid();
+}
