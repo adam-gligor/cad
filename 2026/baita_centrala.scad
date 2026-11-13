@@ -121,26 +121,54 @@ module enclosure() {
 
 
 // ============================================
-// SCREW POSTS
+// SCREW POSTS WITH CORNER REINFORCEMENT
 // ============================================
+
+corner_reinforcement = 2;
 
 module screw_posts() {
 
     for (p = [screw1, screw2]) {
 
+        dx = p[0] < outer_x/2 ? 1 : -1;
+        dz = p[1] < outer_z/2 ? 1 : -1;
+
+        union() {
+
+            // Main cylindrical screw post
+            translate([p[0], 0, p[1]])
+                rotate([-90,0,0])
+                    cylinder(
+                        h=inner_y,
+                        d=boss_d
+                    );
+
+        // Thin cube towards X wall
         translate([
-            p[0],
+            dx > 0 ? wall : p[0],
             0,
-            p[1]
+            p[1] - boss_d/2
         ])
-            rotate([-90,0,0])
-                cylinder(
-                    h=inner_y,
-                    d=boss_d
-                );
+            cube([
+                boss_d/2,
+                inner_y,
+                boss_d
+            ]);
+
+        // Thin cube towards Z wall
+        translate([
+            p[0] - boss_d/2,
+            0,
+            dz > 0 ? wall : p[1]
+        ])
+            cube([
+                boss_d,
+                inner_y,
+                boss_d/2
+            ]);
+        }
     }
 }
-
 
 // ============================================
 // HEAT-SET INSERT HOLES
@@ -302,11 +330,11 @@ else {
 
     enclosure();
 
-    // Separate lid preview
-    translate([
-        0,
-        -lid_th-5,
-        0
-    ])
-        lid();
+//    // Separate lid preview
+//    translate([
+//        0,
+//        -lid_th-5,
+//        0
+//    ])
+//        lid();
 }
