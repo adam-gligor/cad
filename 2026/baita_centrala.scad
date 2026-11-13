@@ -1,11 +1,15 @@
 
 //
 // PARAMETRIC ELECTRONICS ENCLOSURE
-// OPEN END + INTEGRATED ROOF
+// TWO-PIECE PRINTABLE DESIGN
 //
 // Parts:
-//   "box"      = complete enclosure
-//   "assembly" = complete enclosure
+//   "box"      = enclosure only
+//   "roof"     = removable ventilated roof
+//   "assembly" = assembled enclosure
+//
+// Roof attachment:
+//   2 x M3 screws, diagonally opposite
 //
 // Units: mm
 //
@@ -26,44 +30,37 @@ inner_z = 25;
 wall = 2.5;
 floor_thickness = 2.5;
 
-// Integrated roof
-lid_thickness = 2.0;
-roof_overlap = 0.3;
+// Roof
+roof_thickness = 3.0;
 
-// Ventilation
-square_size = 4;
-square_spacing = 3.0;
-square_border = 4.5;
+// Screw mounting
+boss_size = 9;
+screw_diameter = 3.2;
+screw_pilot_diameter = 2.5;
+screw_depth = 8;
 
-// Zip-tie mounting tunnel
-zip_tie_enabled = true;
-
+//// Zip-tie mounting tunnel
+zip_tie_enabled = false;
 zip_tie_width = 4.5;
 zip_tie_thickness = 1.8;
 zip_tie_clearance = 0.3;
-
 zip_tie_z = 6;
 
-
-// ============================================
-// HANGING EAR
-// ============================================
-
+// Hanging ear
 hanging_ear_enabled = true;
+ear_width = 16;
+ear_projection = 20;
+ear_thickness = 5;
+ear_hole_diameter = 5;
+ear_root_overlap = 8;
 
-ear_width = 12;
-ear_length = 16;
+// Ventilation
+square_size = 4;
+square_spacing = 3;
+square_border = 4.5;
+vent_screw_exclusion = 6.5;
 
-ear_thickness = floor_thickness;
-
-ear_hole_diameter = 4.5;
-ear_overlap = 1.5;
-
-
-// ============================================
-// OUTPUT SELECTION
-// ============================================
-
+// Output selection
 part = "box";
 
 
@@ -76,11 +73,18 @@ outer_y = inner_y + 2*wall;
 
 box_height = inner_z + floor_thickness;
 
+// Screw positions
+screw1_x = wall + boss_size/2;
+screw1_y = wall + boss_size/2;
+
+screw2_x = outer_x-wall-boss_size/2;
+screw2_y = outer_y-wall-boss_size/2;
+
 
 // ============================================
 // HANGING EAR
 // Right-hand short end
-// Integrated into floor
+// Reinforced integrated mounting tab
 // ============================================
 
 module hanging_ear() {
@@ -89,37 +93,57 @@ module hanging_ear() {
 
         difference() {
 
-            hull() {
+            union() {
 
-                // Reinforced root
-                translate([
-                    outer_x-ear_overlap,
-                    outer_y/2-ear_width/2,
-                    0
-                ])
+                // Main ear with reinforced root
+                hull() {
 
-                    cube([
-                        6,
-                        ear_width,
-                        ear_thickness
+                    translate([
+                        outer_x-ear_root_overlap,
+                        outer_y/2-ear_width/2,
+                        0
+                    ])
+
+                        cube([
+                            12,
+                            ear_width,
+                            ear_thickness
+                        ]);
+
+                    // Rounded outer end
+                    translate([
+                        outer_x+ear_projection-8,
+                        outer_y/2,
+                        0
+                    ])
+
+                        cylinder(
+                            d=ear_width,
+                            h=ear_thickness
+                        );
+                }
+
+                // Reinforced triangular shoulders
+                linear_extrude(height=ear_thickness)
+
+                    polygon([
+                        [outer_x-8, outer_y/2-ear_width/2-4],
+                        [outer_x+8, outer_y/2-ear_width/2],
+                        [outer_x-8, outer_y/2-ear_width/2]
                     ]);
 
-                // Rounded outer end
-                translate([
-                    outer_x+ear_length-6,
-                    outer_y/2,
-                    0
-                ])
+                linear_extrude(height=ear_thickness)
 
-                    cylinder(
-                        d=ear_width,
-                        h=ear_thickness
-                    );
+                    polygon([
+                        [outer_x-8, outer_y/2+ear_width/2+4],
+                        [outer_x+8, outer_y/2+ear_width/2],
+                        [outer_x-8, outer_y/2+ear_width/2]
+                    ]);
             }
 
             // Zip-tie hole
             translate([
-                outer_x+ear_length-6,
+                outer_x+ear_projection-8,
                 outer_y/2,
                 -0.1
             ])
@@ -143,13 +167,13 @@ module zip_tie_slot() {
 
         translate([
             -0.1,
-            wall + 9/2
-                - (zip_tie_width+zip_tie_clearance)/2,
+            wall+boss_size/2
+                -(zip_tie_width+zip_tie_clearance)/2,
             floor_thickness+zip_tie_z
         ])
 
             cube([
-                wall+9+0.2,
+                wall+boss_size+0.2,
                 zip_tie_width+zip_tie_clearance,
                 zip_tie_thickness+zip_tie_clearance
             ]);
@@ -158,8 +182,8 @@ module zip_tie_slot() {
 
 
 // ============================================
-// ROOF VENTILATION
-// Square holes through entire roof
+// VENTILATION HOLES
+// Square pattern
 // ============================================
 
 module square_holes() {
@@ -186,49 +210,42 @@ module square_holes() {
                 + square_size/2
                 + row*pitch;
 
-            translate([
-                x-square_size/2,
-                y-square_size/2,
-                -0.2
-            ])
+            // Keep ventilation away from screws
+            clear_screw1 =
+                sqrt(
+                    pow(x-screw1_x,2)
+                    + pow(y-screw1_y,2)
+                ) > vent_screw_exclusion;
 
-                cube([
-                    square_size,
-                    square_size,
-                    lid_thickness+roof_overlap+0.4
-                ]);
+            clear_screw2 =
+                sqrt(
+                    pow(x-screw2_x,2)
+                    + pow(y-screw2_y,2)
+                ) > vent_screw_exclusion;
+
+            if (clear_screw1 && clear_screw2) {
+
+                translate([
+                    x-square_size/2,
+                    y-square_size/2,
+                    -0.1
+                ])
+
+                    cube([
+                        square_size,
+                        square_size,
+                        roof_thickness+0.2
+                    ]);
+            }
         }
     }
 }
 
 
 // ============================================
-// INTEGRATED ROOF
-// ============================================
-
-module integrated_roof() {
-
-    translate([
-        0,
-        0,
-        box_height-roof_overlap
-    ])
-
-        difference() {
-
-            cube([
-                outer_x,
-                outer_y,
-                lid_thickness+roof_overlap
-            ]);
-
-            square_holes();
-        }
-}
-
-
-// ============================================
-// ENCLOSURE
+// MAIN ENCLOSURE
+// Open top
+// Open right-hand short end
 // ============================================
 
 module enclosure_box() {
@@ -244,8 +261,7 @@ module enclosure_box() {
                 floor_thickness
             ]);
 
-
-            // LEFT SHORT WALL
+            // Left short wall
             translate([
                 0,
                 0,
@@ -258,8 +274,7 @@ module enclosure_box() {
                     inner_z
                 ]);
 
-
-            // FRONT LONG WALL
+            // Front long wall
             translate([
                 wall,
                 0,
@@ -272,8 +287,7 @@ module enclosure_box() {
                     inner_z
                 ]);
 
-
-            // BACK LONG WALL
+            // Back long wall
             translate([
                 wall,
                 outer_y-wall,
@@ -286,24 +300,133 @@ module enclosure_box() {
                     inner_z
                 ]);
 
+            // Reinforced screw boss 1
+            translate([
+                wall,
+                wall,
+                floor_thickness
+            ])
 
-            // INTEGRATED ROOF
-            integrated_roof();
+                cube([
+                    boss_size,
+                    boss_size,
+                    inner_z
+                ]);
 
+            // Reinforced screw boss 2
+            translate([
+                outer_x-wall-boss_size,
+                outer_y-wall-boss_size,
+                floor_thickness
+            ])
 
-            // HANGING EAR
+                cube([
+                    boss_size,
+                    boss_size,
+                    inner_z
+                ]);
+
+            // Hanging ear
             hanging_ear();
         }
 
+        // M3 pilot hole 1
+        translate([
+            screw1_x,
+            screw1_y,
+            box_height-screw_depth
+        ])
 
-        // ZIP-TIE TUNNEL
+            cylinder(
+                d=screw_pilot_diameter,
+                h=screw_depth+0.1
+            );
+
+        // M3 pilot hole 2
+        translate([
+            screw2_x,
+            screw2_y,
+            box_height-screw_depth
+        ])
+
+            cylinder(
+                d=screw_pilot_diameter,
+                h=screw_depth+0.1
+            );
+
+        // Zip-tie mounting tunnel
         zip_tie_slot();
     }
 }
 
 
 // ============================================
-// OUTPUT
+// SEPARATE ROOF
+// 3 mm thick
+// Two diagonal M3 screw holes
+// ============================================
+
+module enclosure_roof() {
+
+    difference() {
+
+        // Roof plate
+        cube([
+            outer_x,
+            outer_y,
+            roof_thickness
+        ]);
+
+        // Ventilation holes
+        square_holes();
+
+        // Screw clearance hole 1
+        translate([
+            screw1_x,
+            screw1_y,
+            -0.1
+        ])
+
+            cylinder(
+                d=screw_diameter,
+                h=roof_thickness+0.2
+            );
+
+        // Screw clearance hole 2
+        translate([
+            screw2_x,
+            screw2_y,
+            -0.1
+        ])
+
+            cylinder(
+                d=screw_diameter,
+                h=roof_thickness+0.2
+            );
+    }
+}
+
+
+// ============================================
+// ASSEMBLY PREVIEW
+// ============================================
+
+module assembled_enclosure() {
+
+    enclosure_box();
+
+    translate([
+        0,
+        0,
+        box_height
+    ])
+
+        enclosure_roof();
+}
+
+
+// ============================================
+// OUTPUT SELECTION
 // ============================================
 
 if (part=="box") {
@@ -311,8 +434,13 @@ if (part=="box") {
     enclosure_box();
 
 }
+else if (part=="roof") {
+
+    enclosure_roof();
+
+}
 else if (part=="assembly") {
 
-    enclosure_box();
+    assembled_enclosure();
 
 }
