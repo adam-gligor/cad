@@ -1,8 +1,12 @@
 
 //
-// ELECTRONICS ENCLOSURE - REVISION 3
-// Bottom lid with mounting ears
-// Cable opening on short edge
+// ELECTRONICS ENCLOSURE
+// Complete parametric design
+//
+// Main enclosure + bottom lid
+// Mounting ears on short edge X=0
+// Cable opening on short edge X=0
+// Four-segment lid alignment guide
 //
 // Units: mm
 //
@@ -22,7 +26,7 @@ inner_z = 25;
 // Wall thickness
 wall = 2.5;
 floor_thickness = 2.5;
-roof_thickness = 3;
+roof_thickness = 3.0;
 
 // External dimensions
 outer_x = inner_x + 2*wall;
@@ -31,7 +35,7 @@ outer_z = inner_z + roof_thickness;
 
 
 // ==========================================
-// LID CONFIGURATION
+// LID
 // ==========================================
 
 lid_thickness = floor_thickness;
@@ -40,14 +44,16 @@ lid_guide_height = 4;
 lid_guide_thickness = 1.2;
 guide_clearance = 0.25;
 
+boss_clearance = 0.5;
+
 
 // ==========================================
 // MOUNTING EARS
 // ==========================================
 
 ear_length = 9;
-ear_width = 12;
-ear_hole_diameter = 3.2;
+ear_width = 16;
+ear_hole_diameter = 4.5;
 
 
 // ==========================================
@@ -55,6 +61,7 @@ ear_hole_diameter = 3.2;
 // ==========================================
 
 screw_clearance = 3.2;
+
 boss_diameter = 7;
 boss_hole = 2.7;
 
@@ -83,7 +90,7 @@ cable_opening_height = 10;
 
 
 // ==========================================
-// DISPLAY OPTIONS
+// DISPLAY
 // ==========================================
 
 show_box = true;
@@ -96,7 +103,7 @@ assembly_gap = 8;
 // SCREW POSITIONS
 // ==========================================
 
-// Two diagonal enclosure/lid screws
+// Two diagonal screw positions
 
 screw_positions = [
     [screw_inset, screw_inset],
@@ -114,7 +121,7 @@ module enclosure()
     {
         union()
         {
-            // External shell with hollow interior
+            // External shell and hollow interior
             difference()
             {
                 cube([
@@ -135,7 +142,7 @@ module enclosure()
                     ]);
             }
 
-            // Internal screw bosses
+            // Screw bosses
             for (p = screw_positions)
             {
                 translate([
@@ -152,7 +159,7 @@ module enclosure()
 
 
         // ==================================
-        // ROOF VENTILATION HOLES
+        // ROOF VENTILATION
         // ==================================
 
         if (vent_enabled)
@@ -189,7 +196,7 @@ module enclosure()
 
         // ==================================
         // CABLE OPENING
-        // SHORT EDGE: Y = outer_y
+        // SHORT EDGE X=0
         // ==================================
 
         if (cable_opening_enabled)
@@ -228,6 +235,104 @@ module enclosure()
 
 
 // ==========================================
+// LID ALIGNMENT GUIDE
+// Four segments with boss clearance
+// ==========================================
+
+module alignment_guide()
+{
+    guide_x = wall + guide_clearance;
+    guide_y = wall + guide_clearance;
+
+    guide_w = inner_x - 2*guide_clearance;
+    guide_d = inner_y - 2*guide_clearance;
+
+    boss_radius = boss_diameter/2 + boss_clearance;
+
+    difference()
+    {
+        union()
+        {
+            // Left guide wall
+            translate([
+                guide_x,
+                guide_y,
+                lid_thickness
+            ])
+                cube([
+                    lid_guide_thickness,
+                    guide_d,
+                    lid_guide_height
+                ]);
+
+
+            // Right guide wall
+            translate([
+                guide_x+guide_w-lid_guide_thickness,
+                guide_y,
+                lid_thickness
+            ])
+                cube([
+                    lid_guide_thickness,
+                    guide_d,
+                    lid_guide_height
+                ]);
+
+
+            // Front guide wall
+            translate([
+                guide_x,
+                guide_y,
+                lid_thickness
+            ])
+                cube([
+                    guide_w,
+                    lid_guide_thickness,
+                    lid_guide_height
+                ]);
+
+
+            // Rear guide wall
+            translate([
+                guide_x,
+                guide_y+guide_d-lid_guide_thickness,
+                lid_thickness
+            ])
+                cube([
+                    guide_w,
+                    lid_guide_thickness,
+                    lid_guide_height
+                ]);
+        }
+
+
+        // Clearance around first screw boss
+        translate([
+            screw_positions[0][0],
+            screw_positions[0][1],
+            lid_thickness-0.1
+        ])
+            cylinder(
+                h = lid_guide_height+0.2,
+                r = boss_radius
+            );
+
+
+        // Clearance around second screw boss
+        translate([
+            screw_positions[1][0],
+            screw_positions[1][1],
+            lid_thickness-0.1
+        ])
+            cylinder(
+                h = lid_guide_height+0.2,
+                r = boss_radius
+            );
+    }
+}
+
+
+// ==========================================
 // BOTTOM LID
 // ==========================================
 
@@ -246,11 +351,9 @@ module lid()
 
 
             // ==================================
-            // TWO MOUNTING EARS
-            // SAME SHORT EDGE: Y = outer_y
+            // MOUNTING EARS
+            // SHORT EDGE X=0
             // ==================================
-
-            // Two mounting ears on SHORT EDGE (X = 0)
 
             // First ear
             translate([
@@ -263,6 +366,7 @@ module lid()
                     ear_width,
                     lid_thickness
                 ]);
+
 
             // Second ear
             translate([
@@ -277,46 +381,13 @@ module lid()
                 ]);
 
 
-    
-            // ==================================
-            // INTERNAL ALIGNMENT GUIDE
-            // ==================================
-
-            translate([
-                wall+guide_clearance,
-                wall+guide_clearance,
-                lid_thickness
-            ])
-            difference()
-            {
-                // Outer guide
-                cube([
-                    inner_x-2*guide_clearance,
-                    inner_y-2*guide_clearance,
-                    lid_guide_height
-                ]);
-
-                // Hollow guide
-                translate([
-                    lid_guide_thickness,
-                    lid_guide_thickness,
-                    -0.1
-                ])
-                    cube([
-                        inner_x-2*guide_clearance
-                            -2*lid_guide_thickness,
-
-                        inner_y-2*guide_clearance
-                            -2*lid_guide_thickness,
-
-                        lid_guide_height+0.2
-                    ]);
-            }
+            // Alignment guide
+            alignment_guide();
         }
 
 
         // ==================================
-        // LID SCREW CLEARANCE HOLES
+        // LID SCREW HOLES
         // ==================================
 
         for (p = screw_positions)
@@ -337,8 +408,7 @@ module lid()
         // MOUNTING HOLES IN EARS
         // ==================================
 
-        // Mounting holes in ears
-
+        // First ear
         translate([
             -ear_length/2,
             ear_width/2,
@@ -349,6 +419,8 @@ module lid()
                 d = ear_hole_diameter
             );
 
+
+        // Second ear
         translate([
             -ear_length/2,
             outer_y-ear_width/2,
@@ -358,8 +430,8 @@ module lid()
                 h = lid_thickness+0.2,
                 d = ear_hole_diameter
             );
-            }
-        }
+    }
+}
 
 
 // ==========================================
@@ -373,7 +445,7 @@ if (show_box)
 }
 
 
-// Lid displayed separately
+// Lid shown separately
 if (show_lid)
 {
     translate([
