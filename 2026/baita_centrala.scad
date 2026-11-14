@@ -492,6 +492,8 @@ module lid()
 // Main enclosure
 if (show_box)
 {
+    translate([0,outer_y,outer_z])
+    rotate([180,0,0])
     enclosure();
 }
 
@@ -500,8 +502,8 @@ if (show_box)
 if (show_lid)
 {
     translate([
-        outer_x+assembly_gap,
         0,
+        outer_y+1,
         0
     ])
         lid();
