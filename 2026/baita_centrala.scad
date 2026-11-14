@@ -19,8 +19,8 @@ $fn = 64;
 // ==========================================
 
 // Internal dimensions
-inner_x = 85;
-inner_y = 40;
+inner_x = 90;
+inner_y = 50;
 inner_z = 25;
 
 // Wall thickness
@@ -51,7 +51,7 @@ boss_clearance = 0.5;
 // MOUNTING EARS
 // ==========================================
 
-ear_length = 9;
+ear_length = 10;
 ear_width = 16;
 ear_hole_diameter = 4.5;
 
@@ -93,7 +93,7 @@ cable_opening_height = 10;
 // DISPLAY
 // ==========================================
 
-show_box = true;
+show_box = false;
 show_lid = true;
 
 assembly_gap = 8;
