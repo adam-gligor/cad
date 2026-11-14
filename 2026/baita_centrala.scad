@@ -93,8 +93,8 @@ cable_opening_height = 10;
 // DISPLAY
 // ==========================================
 
-show_box = false;
-show_lid = true;
+show_box = true;
+show_lid = false;
 
 assembly_gap = 8;
 
