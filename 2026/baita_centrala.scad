@@ -4,9 +4,9 @@
 // Complete parametric design
 //
 // Main enclosure + bottom lid
-// Mounting ears on short edge X=0
-// Cable opening on short edge X=0
-// Four-segment lid alignment guide
+// Continuous mounting flange on short edge X=0
+// Cable opening on short edge X=0; configurable long-edge opening
+// Reinforced corner screw bosses and four-segment lid alignment guide
 //
 // Units: mm
 //
@@ -19,12 +19,12 @@ $fn = 64;
 // ==========================================
 
 // Internal dimensions
-inner_x = 90;
-inner_y = 50;
+inner_x = 92;
+inner_y = 32;
 inner_z = 25;
 
 // Wall thickness
-wall = 2.5;
+wall = 2;
 floor_thickness = 1;
 roof_thickness = 1;
 
@@ -45,6 +45,10 @@ lid_guide_thickness = 1.2;
 guide_clearance = 0.25;
 
 boss_clearance = 0.5;
+
+// Corner reinforcement footprint and matching lid-guide corner relief.
+boss_gusset_size = 8;
+guide_corner_relief = boss_gusset_size + guide_clearance;
 
 
 // ==========================================
@@ -74,8 +78,8 @@ screw_inset = 7;
 
 vent_enabled = true;
 
-vent_diameter = 5;
-vent_spacing = 8;
+vent_diameter = 8;
+vent_spacing = 11;
 vent_margin = 7;
 
 
@@ -85,8 +89,16 @@ vent_margin = 7;
 
 cable_opening_enabled = true;
 
-cable_opening_width = 20;
+cable_opening_width = 10;
 cable_opening_height = 10;
+
+// Additional opening on one of the long sides (Y=0 or Y=outer_y).
+// side_opening_x is the opening centre measured from X=0.
+side_opening_enabled = true;
+side_opening_width = 10;
+side_opening_height = 10;
+side_opening_x = outer_x +4 -25;
+side_opening_side = "Y0"; // "Y0" or "YMAX"
 
 
 // ==========================================
@@ -94,7 +106,7 @@ cable_opening_height = 10;
 // ==========================================
 
 show_box = true;
-show_lid = false;
+show_lid = true;
 
 assembly_gap = 8;
 
@@ -142,18 +154,31 @@ module enclosure()
                     ]);
             }
 
-            // Screw bosses
-            for (p = screw_positions)
+            // Screw bosses with broad, full-height corner reinforcement.
+            // Each corner pad fills more of the corner and blends into its boss.
+            for (i = [0:len(screw_positions)-1])
             {
-                translate([
-                    p[0],
-                    p[1],
-                    0
-                ])
-                    cylinder(
-                        h = inner_z,
-                        d = boss_diameter
-                    );
+                p = screw_positions[i];
+
+                hull()
+                {
+                    translate([p[0], p[1], 0])
+                        cylinder(
+                            h = inner_z,
+                            d = boss_diameter
+                        );
+
+                    translate([
+                        (i == 0) ? wall : outer_x-wall-boss_gusset_size,
+                        (i == 0) ? wall : outer_y-wall-boss_gusset_size,
+                        0
+                    ])
+                        cube([
+                            boss_gusset_size,
+                            boss_gusset_size,
+                            inner_z
+                        ]);
+                }
             }
         }
 
@@ -234,6 +259,25 @@ module enclosure()
                 ]);
         }
 
+        // Configurable opening on either long edge.
+        if (side_opening_enabled)
+        {
+            side_y = (side_opening_side == "YMAX")
+                ? outer_y-wall-0.5
+                : -0.5;
+
+            translate([
+                side_opening_x-side_opening_width/2,
+                side_y,
+                0
+            ])
+                cube([
+                    side_opening_width,
+                    wall+1,
+                    side_opening_height
+                ]);
+        }
+
 
         // ==================================
         // SCREW HOLES IN BOSSES
@@ -268,6 +312,10 @@ module alignment_guide()
     guide_w = inner_x - 2*guide_clearance;
     guide_d = inner_y - 2*guide_clearance;
 
+    // Leave the reinforced corners open so the lid can seat fully.
+    guide_run_y = guide_d - 2*guide_corner_relief;
+    guide_run_x = guide_w - 2*guide_corner_relief;
+
     boss_radius = boss_diameter/2 + boss_clearance;
 
     difference()
@@ -277,12 +325,12 @@ module alignment_guide()
             // Left guide wall
             translate([
                 guide_x,
-                guide_y,
+                guide_y+guide_corner_relief,
                 lid_thickness
             ])
                 cube([
                     lid_guide_thickness,
-                    guide_d,
+                    guide_run_y,
                     lid_guide_height
                 ]);
 
@@ -290,24 +338,24 @@ module alignment_guide()
             // Right guide wall
             translate([
                 guide_x+guide_w-lid_guide_thickness,
-                guide_y,
+                guide_y+guide_corner_relief,
                 lid_thickness
             ])
                 cube([
                     lid_guide_thickness,
-                    guide_d,
+                    guide_run_y,
                     lid_guide_height
                 ]);
 
 
             // Front guide wall
             translate([
-                guide_x,
+                guide_x+guide_corner_relief,
                 guide_y,
                 lid_thickness
             ])
                 cube([
-                    guide_w,
+                    guide_run_x,
                     lid_guide_thickness,
                     lid_guide_height
                 ]);
@@ -315,12 +363,12 @@ module alignment_guide()
 
             // Rear guide wall
             translate([
-                guide_x,
+                guide_x+guide_corner_relief,
                 guide_y+guide_d-lid_guide_thickness,
                 lid_thickness
             ])
                 cube([
-                    guide_w,
+                    guide_run_x,
                     lid_guide_thickness,
                     lid_guide_height
                 ]);
@@ -372,32 +420,14 @@ module lid()
 
 
             // ==================================
-            // MOUNTING EARS
-            // SHORT EDGE X=0
+            // CONTINUOUS MOUNTING FLANGE
+            // SHORT EDGE X=0; spans the full lid width
             // ==================================
 
-            // First ear
-            translate([
-                -ear_length,
-                0,
-                0
-            ])
+            translate([-ear_length, 0, 0])
                 cube([
                     ear_length,
-                    ear_width,
-                    lid_thickness
-                ]);
-
-
-            // Second ear
-            translate([
-                -ear_length,
-                outer_y-ear_width,
-                0
-            ])
-                cube([
-                    ear_length,
-                    ear_width,
+                    outer_y,
                     lid_thickness
                 ]);
 
@@ -426,10 +456,10 @@ module lid()
 
 
         // ==================================
-        // MOUNTING HOLES IN EARS
+        // TWO MOUNTING HOLES IN THE CONTINUOUS FLANGE
         // ==================================
 
-        // First ear
+        // First flange hole
         translate([
             -ear_length/2,
             ear_width/2,
@@ -441,7 +471,7 @@ module lid()
             );
 
 
-        // Second ear
+        // Second flange hole
         translate([
             -ear_length/2,
             outer_y-ear_width/2,
