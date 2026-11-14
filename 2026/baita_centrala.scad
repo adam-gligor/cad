@@ -25,8 +25,8 @@ inner_z = 25;
 
 // Wall thickness
 wall = 2.5;
-floor_thickness = 1.5;
-roof_thickness = 1.5;
+floor_thickness = 1;
+roof_thickness = 1;
 
 // External dimensions
 outer_x = inner_x + 2*wall;
