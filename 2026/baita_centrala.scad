@@ -25,8 +25,8 @@ inner_z = 25;
 
 // Wall thickness
 wall = 2.5;
-floor_thickness = 2.5;
-roof_thickness = 2.5;
+floor_thickness = 1.5;
+roof_thickness = 1.5;
 
 // External dimensions
 outer_x = inner_x + 2*wall;
@@ -162,6 +162,12 @@ module enclosure()
         // ROOF VENTILATION
         // ==================================
 
+        // ==================================
+        // ROOF VENTILATION
+        // Exclude holes above screw bosses
+        // for improved structural stability
+        // ==================================
+
         if (vent_enabled)
         {
             for (
@@ -180,15 +186,30 @@ module enclosure()
                     ]
                 )
                 {
-                    translate([
-                        x,
-                        y,
-                        inner_z
-                    ])
-                        cylinder(
-                            h = roof_thickness+1,
-                            d = vent_diameter
-                        );
+                    // Skip ventilation holes at the two
+                    // diagonal screw boss positions
+                    skip_vent =
+                        (sqrt(
+                            pow(x-screw_positions[0][0], 2) +
+                            pow(y-screw_positions[0][1], 2)
+                        ) < boss_diameter/2 + vent_diameter/2) ||
+                        (sqrt(
+                            pow(x-screw_positions[1][0], 2) +
+                            pow(y-screw_positions[1][1], 2)
+                        ) < boss_diameter/2 + vent_diameter/2);
+
+                    if (!skip_vent)
+                    {
+                        translate([
+                            x,
+                            y,
+                            inner_z
+                        ])
+                            cylinder(
+                                h = roof_thickness+1,
+                                d = vent_diameter
+                            );
+                    }
                 }
             }
         }
