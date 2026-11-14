@@ -1,15 +1,8 @@
 
 //
-// PARAMETRIC ELECTRONICS ENCLOSURE
-// TWO-PIECE PRINTABLE DESIGN
-//
-// Parts:
-//   "box"      = enclosure only
-//   "roof"     = removable ventilated roof
-//   "assembly" = assembled enclosure
-//
-// Roof attachment:
-//   2 x M3 screws, diagonally opposite
+// ELECTRONICS ENCLOSURE - REVISION 3
+// Bottom lid with mounting ears
+// Cable opening on short edge
 //
 // Units: mm
 //
@@ -17,430 +10,376 @@
 $fn = 64;
 
 
-// ============================================
-// USER PARAMETERS
-// ============================================
+// ==========================================
+// CONFIGURATION
+// ==========================================
 
 // Internal dimensions
 inner_x = 85;
 inner_y = 40;
 inner_z = 25;
 
-// Walls and floor
+// Wall thickness
 wall = 2.5;
 floor_thickness = 2.5;
+roof_thickness = 3;
 
-// Roof
-roof_thickness = 3.0;
-
-// Screw mounting
-boss_size = 9;
-screw_diameter = 3.2;
-screw_pilot_diameter = 2.5;
-screw_depth = 8;
-
-//// Zip-tie mounting tunnel
-zip_tie_enabled = false;
-zip_tie_width = 4.5;
-zip_tie_thickness = 1.8;
-zip_tie_clearance = 0.3;
-zip_tie_z = 6;
-
-// Hanging ear
-hanging_ear_enabled = true;
-ear_width = 16;
-ear_projection = 20;
-ear_thickness = 5;
-ear_hole_diameter = 5;
-ear_root_overlap = 8;
-
-// Ventilation
-square_size = 4;
-square_spacing = 3;
-square_border = 4.5;
-vent_screw_exclusion = 6.5;
-
-// Output selection
-part = "box";
-
-
-// ============================================
-// CALCULATED DIMENSIONS
-// ============================================
-
+// External dimensions
 outer_x = inner_x + 2*wall;
 outer_y = inner_y + 2*wall;
-
-box_height = inner_z + floor_thickness;
-
-// Screw positions
-screw1_x = wall + boss_size/2;
-screw1_y = wall + boss_size/2;
-
-screw2_x = outer_x-wall-boss_size/2;
-screw2_y = outer_y-wall-boss_size/2;
+outer_z = inner_z + roof_thickness;
 
 
-// ============================================
-// HANGING EAR
-// Right-hand short end
-// Reinforced integrated mounting tab
-// ============================================
+// ==========================================
+// LID CONFIGURATION
+// ==========================================
 
-module hanging_ear() {
+lid_thickness = floor_thickness;
 
-    if (hanging_ear_enabled) {
+lid_guide_height = 4;
+lid_guide_thickness = 1.2;
+guide_clearance = 0.25;
 
-        difference() {
 
-            union() {
+// ==========================================
+// MOUNTING EARS
+// ==========================================
 
-                // Main ear with reinforced root
-                hull() {
+ear_length = 9;
+ear_width = 12;
+ear_hole_diameter = 3.2;
 
-                    translate([
-                        outer_x-ear_root_overlap,
-                        outer_y/2-ear_width/2,
-                        0
-                    ])
 
-                        cube([
-                            12,
-                            ear_width,
-                            ear_thickness
-                        ]);
+// ==========================================
+// LID SCREWS
+// ==========================================
 
-                    // Rounded outer end
-                    translate([
-                        outer_x+ear_projection-8,
-                        outer_y/2,
-                        0
-                    ])
+screw_clearance = 3.2;
+boss_diameter = 7;
+boss_hole = 2.7;
 
-                        cylinder(
-                            d=ear_width,
-                            h=ear_thickness
-                        );
-                }
+screw_inset = 7;
 
-                // Reinforced triangular shoulders
-                linear_extrude(height=ear_thickness)
 
-                    polygon([
-                        [outer_x-8, outer_y/2-ear_width/2-4],
-                        [outer_x+8, outer_y/2-ear_width/2],
-                        [outer_x-8, outer_y/2-ear_width/2]
-                    ]);
+// ==========================================
+// VENTILATION
+// ==========================================
 
-                linear_extrude(height=ear_thickness)
+vent_enabled = true;
 
-                    polygon([
-                        [outer_x-8, outer_y/2+ear_width/2+4],
-                        [outer_x+8, outer_y/2+ear_width/2],
-                        [outer_x-8, outer_y/2+ear_width/2]
+vent_diameter = 5;
+vent_spacing = 8;
+vent_margin = 7;
+
+
+// ==========================================
+// CABLE OPENING
+// ==========================================
+
+cable_opening_enabled = true;
+
+cable_opening_width = 20;
+cable_opening_height = 10;
+
+
+// ==========================================
+// DISPLAY OPTIONS
+// ==========================================
+
+show_box = true;
+show_lid = true;
+
+assembly_gap = 8;
+
+
+// ==========================================
+// SCREW POSITIONS
+// ==========================================
+
+// Two diagonal enclosure/lid screws
+
+screw_positions = [
+    [screw_inset, screw_inset],
+    [outer_x-screw_inset, outer_y-screw_inset]
+];
+
+
+// ==========================================
+// MAIN ENCLOSURE
+// ==========================================
+
+module enclosure()
+{
+    difference()
+    {
+        union()
+        {
+            // External shell with hollow interior
+            difference()
+            {
+                cube([
+                    outer_x,
+                    outer_y,
+                    outer_z
+                ]);
+
+                translate([
+                    wall,
+                    wall,
+                    0
+                ])
+                    cube([
+                        inner_x,
+                        inner_y,
+                        inner_z
                     ]);
             }
 
-            // Zip-tie hole
+            // Internal screw bosses
+            for (p = screw_positions)
+            {
+                translate([
+                    p[0],
+                    p[1],
+                    0
+                ])
+                    cylinder(
+                        h = inner_z,
+                        d = boss_diameter
+                    );
+            }
+        }
+
+
+        // ==================================
+        // ROOF VENTILATION HOLES
+        // ==================================
+
+        if (vent_enabled)
+        {
+            for (
+                x = [
+                    vent_margin:
+                    vent_spacing:
+                    outer_x-vent_margin
+                ]
+            )
+            {
+                for (
+                    y = [
+                        vent_margin:
+                        vent_spacing:
+                        outer_y-vent_margin
+                    ]
+                )
+                {
+                    translate([
+                        x,
+                        y,
+                        inner_z
+                    ])
+                        cylinder(
+                            h = roof_thickness+1,
+                            d = vent_diameter
+                        );
+                }
+            }
+        }
+
+
+        // ==================================
+        // CABLE OPENING
+        // SHORT EDGE: Y = outer_y
+        // ==================================
+
+        if (cable_opening_enabled)
+        {
             translate([
-                outer_x+ear_projection-8,
-                outer_y/2,
+                -0.5,
+                (outer_y-cable_opening_width)/2,
+                0
+            ])
+                cube([
+                    wall+1,
+                    cable_opening_width,
+                    cable_opening_height
+                ]);
+        }
+
+
+        // ==================================
+        // SCREW HOLES IN BOSSES
+        // ==================================
+
+        for (p = screw_positions)
+        {
+            translate([
+                p[0],
+                p[1],
                 -0.1
             ])
-
                 cylinder(
-                    d=ear_hole_diameter,
-                    h=ear_thickness+0.2
+                    h = inner_z+0.2,
+                    d = boss_hole
                 );
         }
     }
 }
 
 
-// ============================================
-// ZIP-TIE MOUNTING TUNNEL
-// ============================================
+// ==========================================
+// BOTTOM LID
+// ==========================================
 
-module zip_tie_slot() {
-
-    if (zip_tie_enabled) {
-
-        translate([
-            -0.1,
-            wall+boss_size/2
-                -(zip_tie_width+zip_tie_clearance)/2,
-            floor_thickness+zip_tie_z
-        ])
-
-            cube([
-                wall+boss_size+0.2,
-                zip_tie_width+zip_tie_clearance,
-                zip_tie_thickness+zip_tie_clearance
-            ]);
-    }
-}
-
-
-// ============================================
-// VENTILATION HOLES
-// Square pattern
-// ============================================
-
-module square_holes() {
-
-    pitch = square_size+square_spacing;
-
-    cols = floor(
-        (outer_x-2*square_border-square_size)/pitch
-    );
-
-    rows = floor(
-        (outer_y-2*square_border-square_size)/pitch
-    );
-
-    for (row=[0:rows]) {
-
-        for (col=[0:cols]) {
-
-            x = square_border
-                + square_size/2
-                + col*pitch;
-
-            y = square_border
-                + square_size/2
-                + row*pitch;
-
-            // Keep ventilation away from screws
-            clear_screw1 =
-                sqrt(
-                    pow(x-screw1_x,2)
-                    + pow(y-screw1_y,2)
-                ) > vent_screw_exclusion;
-
-            clear_screw2 =
-                sqrt(
-                    pow(x-screw2_x,2)
-                    + pow(y-screw2_y,2)
-                ) > vent_screw_exclusion;
-
-            if (clear_screw1 && clear_screw2) {
-
-                translate([
-                    x-square_size/2,
-                    y-square_size/2,
-                    -0.1
-                ])
-
-                    cube([
-                        square_size,
-                        square_size,
-                        roof_thickness+0.2
-                    ]);
-            }
-        }
-    }
-}
-
-
-// ============================================
-// MAIN ENCLOSURE
-// Open top
-// Open right-hand short end
-// ============================================
-
-module enclosure_box() {
-
-    difference() {
-
-        union() {
-
-            // Floor
+module lid()
+{
+    difference()
+    {
+        union()
+        {
+            // Main lid plate
             cube([
                 outer_x,
                 outer_y,
-                floor_thickness
+                lid_thickness
             ]);
 
-            // Left short wall
+
+            // ==================================
+            // TWO MOUNTING EARS
+            // SAME SHORT EDGE: Y = outer_y
+            // ==================================
+
+            // Two mounting ears on SHORT EDGE (X = 0)
+
+            // First ear
             translate([
+                -ear_length,
                 0,
-                0,
-                floor_thickness
+                0
             ])
-
                 cube([
-                    wall,
-                    outer_y,
-                    inner_z
+                    ear_length,
+                    ear_width,
+                    lid_thickness
                 ]);
 
-            // Front long wall
+            // Second ear
             translate([
-                wall,
-                0,
-                floor_thickness
+                -ear_length,
+                outer_y-ear_width,
+                0
             ])
-
                 cube([
-                    inner_x,
-                    wall,
-                    inner_z
+                    ear_length,
+                    ear_width,
+                    lid_thickness
                 ]);
 
-            // Back long wall
+
+    
+            // ==================================
+            // INTERNAL ALIGNMENT GUIDE
+            // ==================================
+
             translate([
-                wall,
-                outer_y-wall,
-                floor_thickness
+                wall+guide_clearance,
+                wall+guide_clearance,
+                lid_thickness
             ])
-
+            difference()
+            {
+                // Outer guide
                 cube([
-                    inner_x,
-                    wall,
-                    inner_z
+                    inner_x-2*guide_clearance,
+                    inner_y-2*guide_clearance,
+                    lid_guide_height
                 ]);
 
-            // Reinforced screw boss 1
-            translate([
-                wall,
-                wall,
-                floor_thickness
-            ])
+                // Hollow guide
+                translate([
+                    lid_guide_thickness,
+                    lid_guide_thickness,
+                    -0.1
+                ])
+                    cube([
+                        inner_x-2*guide_clearance
+                            -2*lid_guide_thickness,
 
-                cube([
-                    boss_size,
-                    boss_size,
-                    inner_z
-                ]);
+                        inner_y-2*guide_clearance
+                            -2*lid_guide_thickness,
 
-            // Reinforced screw boss 2
-            translate([
-                outer_x-wall-boss_size,
-                outer_y-wall-boss_size,
-                floor_thickness
-            ])
-
-                cube([
-                    boss_size,
-                    boss_size,
-                    inner_z
-                ]);
-
-            // Hanging ear
-            hanging_ear();
+                        lid_guide_height+0.2
+                    ]);
+            }
         }
 
-        // M3 pilot hole 1
-        translate([
-            screw1_x,
-            screw1_y,
-            box_height-screw_depth
-        ])
 
+        // ==================================
+        // LID SCREW CLEARANCE HOLES
+        // ==================================
+
+        for (p = screw_positions)
+        {
+            translate([
+                p[0],
+                p[1],
+                -0.1
+            ])
+                cylinder(
+                    h = lid_thickness+0.2,
+                    d = screw_clearance
+                );
+        }
+
+
+        // ==================================
+        // MOUNTING HOLES IN EARS
+        // ==================================
+
+        // Mounting holes in ears
+
+        translate([
+            -ear_length/2,
+            ear_width/2,
+            -0.1
+        ])
             cylinder(
-                d=screw_pilot_diameter,
-                h=screw_depth+0.1
+                h = lid_thickness+0.2,
+                d = ear_hole_diameter
             );
 
-        // M3 pilot hole 2
         translate([
-            screw2_x,
-            screw2_y,
-            box_height-screw_depth
+            -ear_length/2,
+            outer_y-ear_width/2,
+            -0.1
         ])
-
             cylinder(
-                d=screw_pilot_diameter,
-                h=screw_depth+0.1
+                h = lid_thickness+0.2,
+                d = ear_hole_diameter
             );
+            }
+        }
 
-        // Zip-tie mounting tunnel
-        zip_tie_slot();
-    }
+
+// ==========================================
+// OUTPUT
+// ==========================================
+
+// Main enclosure
+if (show_box)
+{
+    enclosure();
 }
 
 
-// ============================================
-// SEPARATE ROOF
-// 3 mm thick
-// Two diagonal M3 screw holes
-// ============================================
-
-module enclosure_roof() {
-
-    difference() {
-
-        // Roof plate
-        cube([
-            outer_x,
-            outer_y,
-            roof_thickness
-        ]);
-
-        // Ventilation holes
-        square_holes();
-
-        // Screw clearance hole 1
-        translate([
-            screw1_x,
-            screw1_y,
-            -0.1
-        ])
-
-            cylinder(
-                d=screw_diameter,
-                h=roof_thickness+0.2
-            );
-
-        // Screw clearance hole 2
-        translate([
-            screw2_x,
-            screw2_y,
-            -0.1
-        ])
-
-            cylinder(
-                d=screw_diameter,
-                h=roof_thickness+0.2
-            );
-    }
-}
-
-
-// ============================================
-// ASSEMBLY PREVIEW
-// ============================================
-
-module assembled_enclosure() {
-
-    enclosure_box();
-
+// Lid displayed separately
+if (show_lid)
+{
     translate([
+        outer_x+assembly_gap,
         0,
-        0,
-        box_height
+        0
     ])
-
-        enclosure_roof();
-}
-
-
-// ============================================
-// OUTPUT SELECTION
-// ============================================
-
-if (part=="box") {
-
-    enclosure_box();
-
-}
-else if (part=="roof") {
-
-    enclosure_roof();
-
-}
-else if (part=="assembly") {
-
-    assembled_enclosure();
-
+        lid();
 }
