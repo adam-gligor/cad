@@ -7,6 +7,7 @@
 // Z-axis inset only
 // Front-left screw fastening
 // Support-free tapered wedge undersides
+// Reinforced screw area with ventilation exclusion
 // Units: mm
 //
 
@@ -50,6 +51,10 @@ screw_head_diameter   = 6;
 screw_head_depth      = 1.2;
 screw_pilot_diameter  = 2.5;
 screw_hole_depth      = 3;
+
+// Structural reinforcement around screw
+// No ventilation holes within this radius
+screw_ventilation_exclusion = 12;
 
 
 // =====================================================
@@ -449,6 +454,9 @@ module lid() {
 // VENTILATION GRID
 // =====================================================
 
+// Ventilation holes are excluded from a 12 mm radius
+// around the screw centre to preserve structural strength.
+
 module ventilation_grid() {
 
     step = vent_hole_size + vent_spacing;
@@ -464,34 +472,39 @@ module ventilation_grid() {
 
         for (
             y = [
-            wall_thickness + vent_margin :
-            step :
-            wall_thickness + box_width
-            - vent_margin - vent_hole_size
-        ]
+                wall_thickness + vent_margin :
+                step :
+                wall_thickness + box_width
+                - vent_margin - vent_hole_size
+            ]
         ) {
 
+            // Centre of ventilation hole
+            vent_x = x + vent_hole_size / 2;
+            vent_y = y + vent_hole_size / 2;
+
+            // Distance from screw centre
             screw_distance = sqrt(
 
                 pow(
-                    x + vent_hole_size / 2
-                    - screw_position[0],
+                    vent_x - screw_position[0],
                     2
                 )
 
                 +
 
                 pow(
-                    y + vent_hole_size / 2
-                    - screw_position[1],
+                    vent_y - screw_position[1],
                     2
                 )
             );
 
-            // Keep ventilation away from screw head
+            // Keep ventilation away from screw
+            // and preserve surrounding lid material
+
             if (
                 screw_distance >
-                screw_head_diameter / 2 + 2
+                screw_ventilation_exclusion
             ) {
 
                 translate([
