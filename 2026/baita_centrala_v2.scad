@@ -3,11 +3,15 @@
 // PARAMETRIC ELECTRONICS ENCLOSURE
 // Box + Flat Inset Lid
 // Flush-mounted flat lid
-// Four corner mounting wedges touching inside walls
-// Z-axis inset only
+// Four corner mounting wedges
 // Front-left screw fastening
 // Support-free tapered wedge undersides
-// Reinforced screw area with ventilation exclusion
+//
+// ADDITIONS:
+// - Horizontal circular hole through front side wall
+// - Vertical circular hole through lid
+// - Both holes independently configurable
+//
 // Units: mm
 //
 
@@ -53,8 +57,26 @@ screw_pilot_diameter  = 2.5;
 screw_hole_depth      = 3;
 
 // Structural reinforcement around screw
-// No ventilation holes within this radius
 screw_ventilation_exclusion = 12;
+
+
+// =====================================================
+// ADDITIONAL CIRCULAR HOLES
+// =====================================================
+
+// SHORT SIDE-WALL HOLE
+box_side_hole_diameter = 5;
+box_side_hole_x = 50;  // Position along box length
+box_side_hole_z = 25;  // Height from bottom
+
+
+// LID HOLE
+// Vertical hole through lid.
+// X and Y measured from the outer box origin.
+
+lid_hole_diameter = 5;
+lid_hole_x = 50;
+lid_hole_y = 35;
 
 
 // =====================================================
@@ -94,15 +116,13 @@ box_top = bottom_thickness + box_height;
 // Lid sits flush with box rim
 lid_bottom = box_top - lid_thickness;
 
-// Mounting wedges support the underside of the lid
+// Mounting wedges support underside of lid
 mount_top = lid_bottom;
 
 
 // =====================================================
 // SCREW POSITION
 // =====================================================
-
-// Screw centred in the large front-left wedge
 
 screw_position = [
     wall_thickness + large_corner_width / 2,
@@ -156,6 +176,23 @@ module box_body() {
                 d = mount_hole_diameter
             );
         }
+
+        // FRONT SIDE-WALL HOLE
+        // Horizontal hole along Y axis
+        // Passes through front wall
+
+        translate([
+            box_side_hole_x,
+            -0.1,
+            box_side_hole_z
+        ])
+
+        rotate([-90, 0, 0])
+
+        cylinder(
+            h = wall_thickness + 0.2,
+            d = box_side_hole_diameter
+        );
     }
 
     // PCB supports
@@ -214,13 +251,6 @@ module pcb_supports() {
 // =====================================================
 // BOX CORNER LOCATING WEDGES
 // =====================================================
-
-// All wedges:
-// - Touch the inside box walls.
-// - Retain their original X/Y positions.
-// - Are lowered only in Z.
-// - Have flat horizontal tops.
-// - Have tapered undersides.
 
 module box_corner_wedges() {
 
@@ -283,9 +313,6 @@ module box_corner_wedges() {
 // =====================================================
 // INDIVIDUAL CORNER WEDGE
 // =====================================================
-
-// X/Y positions remain against the inside walls.
-// Only the Z position is lowered.
 
 module corner_wedge(
     x_position,
@@ -397,11 +424,6 @@ module corner_wedge_geometry(
 // FLAT INSET LID
 // =====================================================
 
-// Completely flat lid.
-// No perimeter skirt.
-// No raised edges.
-// Lid top is flush with box rim.
-
 module lid() {
 
     difference() {
@@ -444,6 +466,18 @@ module lid() {
             d2 = screw_head_diameter
         );
 
+        // ADDITIONAL LID CIRCULAR HOLE
+        translate([
+            lid_hole_x,
+            lid_hole_y,
+            -0.1
+        ])
+
+        cylinder(
+            h = lid_thickness + 0.2,
+            d = lid_hole_diameter
+        );
+
         // Ventilation
         ventilation_grid();
     }
@@ -453,9 +487,6 @@ module lid() {
 // =====================================================
 // VENTILATION GRID
 // =====================================================
-
-// Ventilation holes are excluded from a 12 mm radius
-// around the screw centre to preserve structural strength.
 
 module ventilation_grid() {
 
@@ -500,8 +531,6 @@ module ventilation_grid() {
             );
 
             // Keep ventilation away from screw
-            // and preserve surrounding lid material
-
             if (
                 screw_distance >
                 screw_ventilation_exclusion
