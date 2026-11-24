@@ -3,17 +3,12 @@
 // PARAMETRIC ELECTRONICS ENCLOSURE
 // Box + Flat Inset Lid
 //
-// FEATURES:
-// - Flush-mounted flat lid
-// - Four corner mounting wedges
-// - PCB supports
-// - Front-left screw fastening
-// - Bottom mounting holes
-// - Ventilation grid
-// - Horizontal circular hole in SHORT SIDE WALL
-// - Vertical circular hole in lid
+// The box geometry remains unchanged.
+// Only the two lid supports are repositioned.
 //
-// Units: mm
+// Supports:
+// - One centred support on the first narrow end, with screw
+// - One centred support on the opposite narrow end, without screw
 //
 
 $fn = 48;
@@ -65,43 +60,21 @@ screw_ventilation_exclusion = 12;
 // ADDITIONAL CIRCULAR HOLES
 // =====================================================
 
-// SHORT SIDE WALL HOLE
-//
-// Located on the LEFT short side of the box.
-// Hole runs horizontally along X axis.
-// Position Y controls location along the 70 mm side.
-// Position Z controls height.
-//
-// X = 0 is the outside of the left short wall.
-
+// Horizontal hole in box side wall
 box_side_hole_diameter = 10;
-
 box_side_hole_y = 12;
-
 box_side_hole_z = 10;
 
-
-// LID CIRCULAR HOLE
-//
-// Vertical hole through lid.
-// X and Y measured from outer box origin.
-
+// Vertical hole in lid
 lid_hole_diameter = 5;
-
 lid_hole_x = 50;
-
 lid_hole_y = 35;
 
 
 // =====================================================
-// BOX LOCATING WEDGES
+// LID SUPPORT DIMENSIONS
 // =====================================================
 
-corner_wedge_width  = 8;
-corner_wedge_depth  = 8;
-corner_wedge_height = 8;
-
-// Larger FRONT-LEFT wedge
 large_corner_width  = 14;
 large_corner_depth  = 10;
 large_corner_height = 8;
@@ -135,9 +108,11 @@ mount_top = lid_bottom;
 // SCREW POSITION
 // =====================================================
 
+// Screw is centred on the first narrow end support.
+
 screw_position = [
-    wall_thickness + large_corner_width / 2,
     wall_thickness + large_corner_depth / 2,
+    outer_width / 2,
     box_top
 ];
 
@@ -188,10 +163,7 @@ module box_body() {
             );
         }
 
-        // SHORT SIDE WALL HOLE
-        // Horizontal through left short wall.
-        // Cylinder axis is X.
-
+        // Existing horizontal side-wall hole
         translate([
             -0.1,
             box_side_hole_y,
@@ -209,7 +181,7 @@ module box_body() {
     // PCB supports
     pcb_supports();
 
-    // Four corner lid mounting wedges
+    // Two repositioned lid supports
     box_corner_wedges();
 }
 
@@ -260,7 +232,7 @@ module pcb_supports() {
 
 
 // =====================================================
-// BOX CORNER LOCATING WEDGES
+// TWO SUPPORTS ON THE NARROW END WALLS
 // =====================================================
 
 module box_corner_wedges() {
@@ -269,44 +241,31 @@ module box_corner_wedges() {
 
         union() {
 
-            // FRONT LEFT - LARGE
-            corner_wedge(
-                wall_thickness,
+            // FIRST NARROW END
+            // Centred support WITH screw
+
+            end_support(
+                (outer_width - large_corner_width) / 2,
                 large_corner_width,
                 large_corner_depth,
                 large_corner_height,
                 false
             );
 
-            // FRONT RIGHT - STANDARD
-            corner_wedge(
-                outer_length - wall_thickness - corner_wedge_width,
-                corner_wedge_width,
-                corner_wedge_depth,
-                corner_wedge_height,
-                false
-            );
+            // OPPOSITE NARROW END
+            // Centred support WITHOUT screw
 
-            // BACK LEFT - STANDARD
-            corner_wedge(
-                wall_thickness,
-                corner_wedge_width,
-                corner_wedge_depth,
-                corner_wedge_height,
-                true
-            );
-
-            // BACK RIGHT - STANDARD
-            corner_wedge(
-                outer_length - wall_thickness - corner_wedge_width,
-                corner_wedge_width,
-                corner_wedge_depth,
-                corner_wedge_height,
+            end_support(
+                (outer_width - large_corner_width) / 2,
+                large_corner_width,
+                large_corner_depth,
+                large_corner_height,
                 true
             );
         }
 
-        // Vertical screw pilot hole
+        // Screw pilot hole in first support only
+
         translate([
             screw_position[0],
             screw_position[1],
@@ -322,51 +281,52 @@ module box_corner_wedges() {
 
 
 // =====================================================
-// INDIVIDUAL CORNER WEDGE
+// NARROW-END SUPPORT POSITIONING
 // =====================================================
 
-module corner_wedge(
-    x_position,
-    wedge_width,
-    wedge_depth,
-    wedge_height,
-    back
+module end_support(
+    y_position,
+    support_width,
+    support_depth,
+    support_height,
+    opposite_end
 ) {
 
-    x0 = x_position;
-    x1 = x_position + wedge_width;
+    x0 = wall_thickness - 0.1;
 
-    y0 = wall_thickness - 0.1;
+    y0 = y_position;
 
-    z0 = mount_top - wedge_height;
+    z0 = mount_top - support_height;
     z1 = mount_top;
 
-    if (back) {
+    if (opposite_end) {
+
+        // Mirror support onto opposite narrow end
 
         translate([
+            outer_length,
             0,
-            outer_width,
             0
         ])
 
-        mirror([0,1,0])
+        mirror([1, 0, 0])
 
-        corner_wedge_geometry(
+        end_support_geometry(
             x0,
-            x1,
             y0,
-            wedge_depth,
+            support_width,
+            support_depth,
             z0,
             z1
         );
 
     } else {
 
-        corner_wedge_geometry(
+        end_support_geometry(
             x0,
-            x1,
             y0,
-            wedge_depth,
+            support_width,
+            support_depth,
             z0,
             z1
         );
@@ -375,45 +335,46 @@ module corner_wedge(
 
 
 // =====================================================
-// CORNER WEDGE GEOMETRY
+// SUPPORT GEOMETRY
 // =====================================================
 
-module corner_wedge_geometry(
+module end_support_geometry(
     x0,
-    x1,
     y0,
-    depth,
+    support_width,
+    support_depth,
     z0,
     z1
 ) {
 
-    y1 = y0 + depth;
+    x1 = x0 + support_depth;
+    y1 = y0 + support_width;
 
     polyhedron(
 
         points = [
 
-            [x0,y0,z0],
-            [x1,y0,z0],
+            [x0, y0, z0],
+            [x0, y1, z0],
 
-            [x1,y0,z1],
-            [x0,y0,z1],
+            [x0, y1, z1],
+            [x0, y0, z1],
 
-            [x0,y1,z1],
-            [x1,y1,z1]
+            [x1, y0, z1],
+            [x1, y1, z1]
         ],
 
         faces = [
 
-            [0,3,2,1],
+            [0, 3, 2, 1],
 
-            [0,1,5,4],
+            [0, 1, 5, 4],
 
-            [0,4,3],
+            [0, 4, 3],
 
-            [1,2,5],
+            [1, 2, 5],
 
-            [3,4,5,2]
+            [3, 4, 5, 2]
         ],
 
         convexity = 10
@@ -467,7 +428,7 @@ module lid() {
             d2 = screw_head_diameter
         );
 
-        // ADDITIONAL LID HOLE
+        // Additional lid hole
         translate([
             lid_hole_x,
             lid_hole_y,
@@ -555,11 +516,13 @@ module ventilation_grid() {
 // ASSEMBLY PREVIEW
 // =====================================================
 
-// Box
+// Box remains in its original position and orientation.
+
 if (show_box)
     box_body();
 
-// Lid displayed separately
+// Lid displayed separately, unchanged.
+
 if (show_lid)
 
     translate([
