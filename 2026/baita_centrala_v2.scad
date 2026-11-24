@@ -1,7 +1,6 @@
 //
 // PARAMETRIC ELECTRONICS ENCLOSURE
 // Box + Flat Inset Lid
-// Inset lid, flush with top of box
 // Screw fastening through large front-left corner wedge
 // Four integrated box locating wedges
 // Larger configurable front-left wedge
@@ -87,9 +86,6 @@ outer_width  = box_width + 2 * wall_thickness;
 
 box_top = bottom_thickness + box_height;
 
-// Lid bottom sits one lid thickness below box top
-lid_bottom = box_top - lid_thickness;
-
 
 // =====================================================
 // SCREW POSITION
@@ -100,7 +96,7 @@ lid_bottom = box_top - lid_thickness;
 screw_position = [
     wall_thickness + large_corner_width / 2,
     wall_thickness + large_corner_depth / 2,
-    lid_bottom
+    box_top
 ];
 
 
@@ -154,8 +150,8 @@ module box_body() {
     // PCB supports
     pcb_supports();
 
-    // Four integrated locating wedges
-    // Including screw pilot hole in large wedge
+    // Four integrated locating wedges.
+    // The screw pilot hole is included in the large wedge.
     box_corner_wedges();
 }
 
@@ -218,7 +214,6 @@ module pcb_supports() {
 // - Have flat horizontal tops.
 // - Have tapered undersides.
 // - Are integrated into the box walls.
-// - Support the inset lid.
 // - Are designed for support-free printing.
 
 module box_corner_wedges() {
@@ -269,7 +264,7 @@ module box_corner_wedges() {
         translate([
             screw_position[0],
             screw_position[1],
-            lid_bottom - screw_hole_depth
+            box_top - screw_hole_depth
         ])
 
         cylinder(
@@ -310,9 +305,8 @@ module corner_wedge(
 
     y0 = wall_thickness - 0.1;
 
-    // Wedges are lowered to support the inset lid
-    z1 = lid_bottom;
-    z0 = z1 - wedge_height;
+    z0 = box_top - wedge_height;
+    z1 = box_top;
 
     if (back) {
 
@@ -409,12 +403,7 @@ module corner_wedge_geometry(
 // Completely flat lid.
 // No perimeter skirt.
 // No locating wedges.
-//
-// Installed position:
-// lid bottom = box_top - lid_thickness
-// lid top    = box_top
-//
-// The lid is displayed separately in the preview.
+// Screw hole aligned with the large front-left wedge.
 
 module lid() {
 
@@ -538,13 +527,13 @@ module ventilation_grid() {
 if (show_box)
     box_body();
 
-// Lid displayed separately at its installed height
+// Lid displayed separately
 if (show_lid)
 
     translate([
         outer_length + display_spacing,
         0,
-        lid_bottom
+        box_top + 2
     ])
 
     lid();
