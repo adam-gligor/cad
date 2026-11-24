@@ -2,15 +2,16 @@
 //
 // PARAMETRIC ELECTRONICS ENCLOSURE
 // Box + Flat Inset Lid
-// Flush-mounted flat lid
-// Four corner mounting wedges
-// Front-left screw fastening
-// Support-free tapered wedge undersides
 //
-// ADDITIONS:
-// - Horizontal circular hole through front side wall
-// - Vertical circular hole through lid
-// - Both holes independently configurable
+// FEATURES:
+// - Flush-mounted flat lid
+// - Four corner mounting wedges
+// - PCB supports
+// - Front-left screw fastening
+// - Bottom mounting holes
+// - Ventilation grid
+// - Horizontal circular hole in SHORT SIDE WALL
+// - Vertical circular hole in lid
 //
 // Units: mm
 //
@@ -23,21 +24,21 @@ $fn = 48;
 // =====================================================
 
 // Internal dimensions
-box_length = 100;
-box_width  = 70;
-box_height = 30;
+box_length = 81;
+box_width  = 21;
+box_height = 28;
 
 // Box
-wall_thickness   = 2;
-bottom_thickness = 2;
+wall_thickness   = 1.4;
+bottom_thickness = 1.4;
 
 // Lid
-lid_thickness = 2;
+lid_thickness = 1.4;
 lid_clearance = 0.25;
 
 // PCB supports
-pcb_support_size   = 8;
-pcb_support_height = 5;
+pcb_support_size   = 5;
+pcb_support_height = 2;
 
 // Bottom mounting holes
 mount_hole_diameter = 4;
@@ -56,7 +57,7 @@ screw_head_depth      = 1.2;
 screw_pilot_diameter  = 2.5;
 screw_hole_depth      = 3;
 
-// Structural reinforcement around screw
+// Screw reinforcement
 screw_ventilation_exclusion = 12;
 
 
@@ -64,18 +65,31 @@ screw_ventilation_exclusion = 12;
 // ADDITIONAL CIRCULAR HOLES
 // =====================================================
 
-// SHORT SIDE-WALL HOLE
-box_side_hole_diameter = 5;
-box_side_hole_x = 50;  // Position along box length
-box_side_hole_z = 25;  // Height from bottom
+// SHORT SIDE WALL HOLE
+//
+// Located on the LEFT short side of the box.
+// Hole runs horizontally along X axis.
+// Position Y controls location along the 70 mm side.
+// Position Z controls height.
+//
+// X = 0 is the outside of the left short wall.
+
+box_side_hole_diameter = 10;
+
+box_side_hole_y = 12;
+
+box_side_hole_z = 10;
 
 
-// LID HOLE
+// LID CIRCULAR HOLE
+//
 // Vertical hole through lid.
-// X and Y measured from the outer box origin.
+// X and Y measured from outer box origin.
 
 lid_hole_diameter = 5;
+
 lid_hole_x = 50;
+
 lid_hole_y = 35;
 
 
@@ -83,7 +97,6 @@ lid_hole_y = 35;
 // BOX LOCATING WEDGES
 // =====================================================
 
-// Three standard corner wedges
 corner_wedge_width  = 8;
 corner_wedge_depth  = 8;
 corner_wedge_height = 8;
@@ -113,10 +126,8 @@ outer_width  = box_width + 2 * wall_thickness;
 
 box_top = bottom_thickness + box_height;
 
-// Lid sits flush with box rim
 lid_bottom = box_top - lid_thickness;
 
-// Mounting wedges support underside of lid
 mount_top = lid_bottom;
 
 
@@ -159,7 +170,7 @@ module box_body() {
             box_height + 0.1
         ]);
 
-        // Two bottom mounting holes
+        // Bottom mounting holes
         for (x = [
             mount_hole_offset,
             outer_length - mount_hole_offset
@@ -177,17 +188,17 @@ module box_body() {
             );
         }
 
-        // FRONT SIDE-WALL HOLE
-        // Horizontal hole along Y axis
-        // Passes through front wall
+        // SHORT SIDE WALL HOLE
+        // Horizontal through left short wall.
+        // Cylinder axis is X.
 
         translate([
-            box_side_hole_x,
             -0.1,
+            box_side_hole_y,
             box_side_hole_z
         ])
 
-        rotate([-90, 0, 0])
+        rotate([0, 90, 0])
 
         cylinder(
             h = wall_thickness + 0.2,
@@ -325,10 +336,8 @@ module corner_wedge(
     x0 = x_position;
     x1 = x_position + wedge_width;
 
-    // Front wall attachment
     y0 = wall_thickness - 0.1;
 
-    // Z-axis inset only
     z0 = mount_top - wedge_height;
     z1 = mount_top;
 
@@ -384,34 +393,26 @@ module corner_wedge_geometry(
 
         points = [
 
-            // Bottom at wall
             [x0,y0,z0],
             [x1,y0,z0],
 
-            // Top at wall
             [x1,y0,z1],
             [x0,y0,z1],
 
-            // Inner top edge
             [x0,y1,z1],
             [x1,y1,z1]
         ],
 
         faces = [
 
-            // Vertical wall attachment
             [0,3,2,1],
 
-            // Sloping underside
             [0,1,5,4],
 
-            // Left side
             [0,4,3],
 
-            // Right side
             [1,2,5],
 
-            // Flat horizontal top
             [3,4,5,2]
         ],
 
@@ -466,7 +467,7 @@ module lid() {
             d2 = screw_head_diameter
         );
 
-        // ADDITIONAL LID CIRCULAR HOLE
+        // ADDITIONAL LID HOLE
         translate([
             lid_hole_x,
             lid_hole_y,
@@ -510,11 +511,9 @@ module ventilation_grid() {
             ]
         ) {
 
-            // Centre of ventilation hole
             vent_x = x + vent_hole_size / 2;
             vent_y = y + vent_hole_size / 2;
 
-            // Distance from screw centre
             screw_distance = sqrt(
 
                 pow(
@@ -530,7 +529,6 @@ module ventilation_grid() {
                 )
             );
 
-            // Keep ventilation away from screw
             if (
                 screw_distance >
                 screw_ventilation_exclusion
@@ -561,7 +559,7 @@ module ventilation_grid() {
 if (show_box)
     box_body();
 
-// Lid displayed separately at actual installed height
+// Lid displayed separately
 if (show_lid)
 
     translate([
