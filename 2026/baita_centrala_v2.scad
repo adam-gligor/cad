@@ -1,9 +1,11 @@
-
 //
 // PARAMETRIC ELECTRONICS ENCLOSURE
-// Box + Cap-style Lid
-// Single fixed front screw fastening
-// 45-degree support-free tapered screw wedge
+// Box + Flat Inset Lid
+// Inset lid, flush with top of box
+// Screw fastening through large front-left corner wedge
+// Four integrated box locating wedges
+// Larger configurable front-left wedge
+// Support-free tapered wedge undersides
 // Units: mm
 //
 
@@ -24,10 +26,8 @@ wall_thickness   = 2;
 bottom_thickness = 2;
 
 // Lid
-lid_thickness       = 2;
-lid_skirt_height    = 6;
-lid_skirt_thickness = 2;
-lid_clearance       = 0.25;
+lid_thickness = 2;
+lid_clearance = 0.25;
 
 // PCB supports
 pcb_support_size   = 8;
@@ -50,13 +50,22 @@ screw_head_depth      = 1.2;
 screw_pilot_diameter  = 2.5;
 screw_hole_depth      = 3;
 
-// Screw wedge
-screw_wedge_width  = 12;
-screw_wedge_depth  = 8;
-screw_wedge_height = 8;
 
-// Fixed screw position
-fastener_position = 50;
+// =====================================================
+// BOX LOCATING WEDGES
+// =====================================================
+
+// Three standard corner wedges
+corner_wedge_width  = 8;
+corner_wedge_depth  = 8;
+corner_wedge_height = 8;
+
+// Larger FRONT-LEFT wedge
+// This wedge also contains the screw pilot hole.
+
+large_corner_width  = 14;
+large_corner_depth  = 10;
+large_corner_height = 8;
 
 
 // =====================================================
@@ -78,32 +87,21 @@ outer_width  = box_width + 2 * wall_thickness;
 
 box_top = bottom_thickness + box_height;
 
-lid_outer_length =
-    outer_length + 2 * lid_clearance
-    + 2 * lid_skirt_thickness;
-
-lid_outer_width =
-    outer_width + 2 * lid_clearance
-    + 2 * lid_skirt_thickness;
-
-lid_offset = lid_skirt_thickness + lid_clearance;
+// Lid bottom sits one lid thickness below box top
+lid_bottom = box_top - lid_thickness;
 
 
 // =====================================================
-// FIXED SCREW POSITION
+// SCREW POSITION
 // =====================================================
 
-// Permanently located on the FRONT wall.
-// Centred along the enclosure length.
+// Screw is centred in the large front-left wedge.
 
 screw_position = [
-    wall_thickness + fastener_position,
-    wall_thickness + screw_wedge_depth / 2,
-    box_top
+    wall_thickness + large_corner_width / 2,
+    wall_thickness + large_corner_depth / 2,
+    lid_bottom
 ];
-
-screw_lid_x = lid_offset + screw_position[0];
-screw_lid_y = lid_offset + screw_position[1];
 
 
 // =====================================================
@@ -127,6 +125,7 @@ module box_body() {
             wall_thickness,
             bottom_thickness
         ])
+
         cube([
             box_length,
             box_width,
@@ -144,6 +143,7 @@ module box_body() {
                 outer_width / 2,
                 -0.1
             ])
+
             cylinder(
                 h = bottom_thickness + 0.2,
                 d = mount_hole_diameter
@@ -151,9 +151,12 @@ module box_body() {
         }
     }
 
+    // PCB supports
     pcb_supports();
 
-    screw_wedge();
+    // Four integrated locating wedges
+    // Including screw pilot hole in large wedge
+    box_corner_wedges();
 }
 
 
@@ -187,9 +190,11 @@ module pcb_supports() {
                 0,
                 bottom_thickness
             ])
+
             linear_extrude(
                 height = pcb_support_height
             )
+
             polygon(points = [
                 [x_corner, y_corner],
                 [x_inner, y_corner],
@@ -201,89 +206,70 @@ module pcb_supports() {
 
 
 // =====================================================
-// SUPPORT-FREE TRIANGULAR SCREW WEDGE
+// BOX CORNER LOCATING WEDGES
 // =====================================================
 
-// Fixed to the inside of the FRONT wall.
+// Front-left: larger wedge with screw pilot hole
+// Front-right: standard wedge
+// Back-left: standard wedge
+// Back-right: standard wedge
 //
-// Geometry:
-//
-// - Flat horizontal top.
-// - 45-degree tapered underside.
-// - Vertical attachment to the front wall.
-// - Full-width triangular prism.
-// - Slight overlap with the inside wall.
-// - Vertical blind screw pilot hole.
-//
-// The underside rises towards the centre of the box.
-//
-// Designed for printing with the box bottom on the
-// build plate without requiring support material.
+// All wedges:
+// - Have flat horizontal tops.
+// - Have tapered undersides.
+// - Are integrated into the box walls.
+// - Support the inset lid.
+// - Are designed for support-free printing.
 
-
-module screw_wedge() {
+module box_corner_wedges() {
 
     difference() {
 
-        x0 = screw_position[0] - screw_wedge_width / 2;
-        x1 = screw_position[0] + screw_wedge_width / 2;
+        union() {
 
-        // Front wall overlap
-        y0 = wall_thickness - 0.1;
+            // FRONT LEFT - LARGE
+            corner_wedge(
+                wall_thickness,
+                large_corner_width,
+                large_corner_depth,
+                large_corner_height,
+                false
+            );
 
-        // Inner edge
-        y1 = y0 + screw_wedge_depth;
+            // FRONT RIGHT - STANDARD
+            corner_wedge(
+                outer_length - wall_thickness - corner_wedge_width,
+                corner_wedge_width,
+                corner_wedge_depth,
+                corner_wedge_height,
+                false
+            );
 
-        // Bottom and top
-        z0 = box_top - screw_wedge_height;
-        z1 = box_top;
+            // BACK LEFT - STANDARD
+            corner_wedge(
+                wall_thickness,
+                corner_wedge_width,
+                corner_wedge_depth,
+                corner_wedge_height,
+                true
+            );
 
-        // Fully enclosed solid wedge
-        polyhedron(
+            // BACK RIGHT - STANDARD
+            corner_wedge(
+                outer_length - wall_thickness - corner_wedge_width,
+                corner_wedge_width,
+                corner_wedge_depth,
+                corner_wedge_height,
+                true
+            );
+        }
 
-            points = [
-
-                [x0, y0, z0],  // 0
-                [x1, y0, z0],  // 1
-                [x1, y0, z1],  // 2
-                [x0, y0, z1],  // 3
-
-                [x0, y1, z1],  // 4
-                [x1, y1, z1]   // 5
-            ],
-
-            faces = [
-
-                // Bottom
-                [0, 4, 5, 1],
-
-                // Front
-                [0, 1, 2, 3],
-
-                // Top
-                [3, 2, 5, 4],
-
-                // Sloped underside
-                [0, 3, 4],
-
-                // Right side
-                [1, 5, 2],
-
-                // Left side
-                [0, 4, 3],
-
-                // Back triangular face
-                [0, 5, 4, 1]
-            ],
-
-            convexity = 10
-        );
-
-        // Vertical blind screw pilot hole
+        // Vertical screw pilot hole in the large
+        // front-left corner wedge
         translate([
             screw_position[0],
             screw_position[1],
-            box_top - screw_hole_depth
+            lid_bottom - screw_hole_depth
         ])
 
         cylinder(
@@ -295,55 +281,162 @@ module screw_wedge() {
 
 
 // =====================================================
-// LID
+// INDIVIDUAL CORNER WEDGE
 // =====================================================
+
+// Creates a triangular-prism wedge.
+//
+// Front wedges extend inward from the front wall.
+// Back wedges are mirrored.
+//
+// The wedge has:
+// - Vertical wall attachment.
+// - Flat horizontal top.
+// - Sloping underside.
+//
+// For support-free printing, wedge depth should
+// be equal to or greater than wedge height.
+
+module corner_wedge(
+    x_position,
+    wedge_width,
+    wedge_depth,
+    wedge_height,
+    back
+) {
+
+    x0 = x_position;
+    x1 = x_position + wedge_width;
+
+    y0 = wall_thickness - 0.1;
+
+    // Wedges are lowered to support the inset lid
+    z1 = lid_bottom;
+    z0 = z1 - wedge_height;
+
+    if (back) {
+
+        translate([
+            0,
+            outer_width,
+            0
+        ])
+
+        mirror([0,1,0])
+
+        corner_wedge_geometry(
+            x0,
+            x1,
+            y0,
+            wedge_depth,
+            z0,
+            z1
+        );
+
+    } else {
+
+        corner_wedge_geometry(
+            x0,
+            x1,
+            y0,
+            wedge_depth,
+            z0,
+            z1
+        );
+    }
+}
+
+
+// =====================================================
+// CORNER WEDGE GEOMETRY
+// =====================================================
+
+module corner_wedge_geometry(
+    x0,
+    x1,
+    y0,
+    depth,
+    z0,
+    z1
+) {
+
+    y1 = y0 + depth;
+
+    polyhedron(
+
+        points = [
+
+            // Bottom at wall
+            [x0,y0,z0],
+            [x1,y0,z0],
+
+            // Top at wall
+            [x1,y0,z1],
+            [x0,y0,z1],
+
+            // Inner top edge
+            [x0,y1,z1],
+            [x1,y1,z1]
+        ],
+
+        faces = [
+
+            // Vertical wall attachment
+            [0,3,2,1],
+
+            // Sloping underside
+            [0,1,5,4],
+
+            // Left side
+            [0,4,3],
+
+            // Right side
+            [1,2,5],
+
+            // Flat horizontal top
+            [3,4,5,2]
+        ],
+
+        convexity = 10
+    );
+}
+
+
+// =====================================================
+// FLAT INSET LID
+// =====================================================
+
+// Completely flat lid.
+// No perimeter skirt.
+// No locating wedges.
+//
+// Installed position:
+// lid bottom = box_top - lid_thickness
+// lid top    = box_top
+//
+// The lid is displayed separately in the preview.
 
 module lid() {
 
     difference() {
 
-        union() {
-
-            // Top plate
-            cube([
-                lid_outer_length,
-                lid_outer_width,
-                lid_thickness
-            ]);
-
-            // Perimeter skirt
-            translate([
-                0,
-                0,
-                -lid_skirt_height
-            ])
-
-            difference() {
-
-                cube([
-                    lid_outer_length,
-                    lid_outer_width,
-                    lid_skirt_height
-                ]);
-
-                translate([
-                    lid_skirt_thickness,
-                    lid_skirt_thickness,
-                    -0.1
-                ])
-
-                cube([
-                    outer_length + 2 * lid_clearance,
-                    outer_width + 2 * lid_clearance,
-                    lid_skirt_height + 0.2
-                ]);
-            }
-        }
-
-        // Single screw clearance hole
+        // Flat inset lid plate
         translate([
-            screw_lid_x,
-            screw_lid_y,
+            wall_thickness + lid_clearance,
+            wall_thickness + lid_clearance,
+            0
+        ])
+
+        cube([
+            box_length - 2 * lid_clearance,
+            box_width - 2 * lid_clearance,
+            lid_thickness
+        ]);
+
+        // Screw clearance hole
+        translate([
+            screw_position[0],
+            screw_position[1],
             -0.1
         ])
 
@@ -354,8 +447,8 @@ module lid() {
 
         // Countersink
         translate([
-            screw_lid_x,
-            screw_lid_y,
+            screw_position[0],
+            screw_position[1],
             lid_thickness - screw_head_depth
         ])
 
@@ -381,32 +474,35 @@ module ventilation_grid() {
 
     for (
         x = [
-            vent_margin :
+            wall_thickness + vent_margin :
             step :
-            lid_outer_length - vent_margin - vent_hole_size
+            wall_thickness + box_length
+            - vent_margin - vent_hole_size
         ]
     ) {
 
         for (
             y = [
-                vent_margin :
+                wall_thickness + vent_margin :
                 step :
-                lid_outer_width - vent_margin - vent_hole_size
+                wall_thickness + box_width
+                - vent_margin - vent_hole_size
             ]
         ) {
 
-            // Distance from screw centre
             screw_distance = sqrt(
 
                 pow(
-                    x + vent_hole_size / 2 - screw_lid_x,
+                    x + vent_hole_size / 2
+                    - screw_position[0],
                     2
                 )
 
                 +
 
                 pow(
-                    y + vent_hole_size / 2 - screw_lid_y,
+                    y + vent_hole_size / 2
+                    - screw_position[1],
                     2
                 )
             );
@@ -438,15 +534,17 @@ module ventilation_grid() {
 // ASSEMBLY PREVIEW
 // =====================================================
 
+// Box
 if (show_box)
     box_body();
 
+// Lid displayed separately at its installed height
 if (show_lid)
 
     translate([
         outer_length + display_spacing,
         0,
-        lid_skirt_height
+        lid_bottom
     ])
 
     lid();
