@@ -3,13 +3,18 @@
 // PARAMETRIC ELECTRONICS ENCLOSURE
 // External Top Lid with Internal Lid Supports
 // Horizontal Side-Entry Screw
+// Four-Sided Lid Alignment Guides
 //
 // Changes:
 // - Lid supports moved from box to underside of lid.
 // - Lid sits ON TOP of box.
-// - Lid covers the complete external box footprint.
+// - Lid covers complete external box footprint.
 // - Horizontal screw enters through narrow end wall.
 // - Screw engages pilot hole in lid support.
+// - Original screw-hole support retained.
+// - Opposite solid support removed.
+// - Four alignment guides added underneath lid.
+// - Guide width, height and clearance configurable.
 // - PCB supports and existing box features retained.
 //
 
@@ -25,26 +30,32 @@ box_length = 82;
 box_width  = 21;
 box_height = 30;
 
+
 // Box
 wall_thickness   = 1.4;
 bottom_thickness = 1.4;
+
 
 // Lid
 lid_thickness = 1.4;
 lid_clearance = 0.25;
 
+
 // PCB supports
 pcb_support_size   = 5;
 pcb_support_height = 2;
+
 
 // Bottom mounting holes
 mount_hole_diameter = 4;
 mount_hole_offset   = 10;
 
+
 // Ventilation
-vent_hole_size = 4;
+vent_hole_size = 4.5;
 vent_spacing   = 4;
 vent_margin    = 8;
+
 
 // Screw
 screw_diameter        = 3;
@@ -68,6 +79,7 @@ box_side_hole_diameter = 10;
 box_side_hole_y = 12;
 box_side_hole_z = 10;
 
+
 // Vertical hole in lid
 lid_hole_diameter = 5;
 lid_hole_x = 50;
@@ -84,11 +96,22 @@ large_corner_height = 8;
 
 
 // =====================================================
+// LID ALIGNMENT GUIDES
+// =====================================================
+
+// Four-sided alignment frame
+
+lid_guide_width     = 2;    // Guide thickness (X/Y)
+lid_guide_height    = 2;    // Guide depth below lid
+lid_guide_clearance = 0.2;  // Clearance from box walls
+
+
+// =====================================================
 // DISPLAY
 // =====================================================
 
-show_box = true;
-show_lid = false;
+show_box = false;
+show_lid = true;
 
 display_spacing = 15;
 
@@ -107,16 +130,6 @@ box_top = bottom_thickness + box_height;
 // HORIZONTAL SCREW POSITION
 // =====================================================
 
-// Screw enters horizontally through the first narrow end.
-//
-// X = screw insertion direction
-// Y = centre of narrow end
-// Z = 3 mm below top of box
-
-
-// Screw enters horizontally through first narrow end.
-// Positioned 6 mm below the top of the box.
-
 screw_x = wall_thickness;
 screw_y = outer_width / 2;
 screw_z = box_top - 6;
@@ -131,13 +144,16 @@ module box_body() {
     difference() {
 
         // Outer box
+
         cube([
             outer_length,
             outer_width,
             box_top
         ]);
 
+
         // Internal cavity
+
         translate([
             wall_thickness,
             wall_thickness,
@@ -152,6 +168,7 @@ module box_body() {
 
 
         // Bottom mounting holes
+
         for (x = [
             mount_hole_offset,
             outer_length - mount_hole_offset
@@ -171,6 +188,7 @@ module box_body() {
 
 
         // Existing horizontal side-wall hole
+
         translate([
             -0.1,
             box_side_hole_y,
@@ -185,12 +203,7 @@ module box_body() {
         );
 
 
-        // =================================================
-        // NEW HORIZONTAL LID SCREW HOLE
-        // =================================================
-
-        // Screw clearance through box end wall
-
+        // Horizontal lid screw hole
 
         translate([
             -0.1,
@@ -268,12 +281,7 @@ module lid() {
 
         union() {
 
-            // =================================================
-            // EXTERNAL TOP LID
-            // =================================================
-
-            // Lid covers complete external box dimensions.
-            // Its bottom surface sits directly on box top.
+            // External top lid
 
             cube([
                 outer_length,
@@ -282,20 +290,13 @@ module lid() {
             ]);
 
 
-            // =================================================
-            // TWO SUPPORTS UNDERNEATH LID
-            // =================================================
+            // Original screw support + alignment guides
 
             lid_supports();
         }
 
 
-        // =================================================
-        // HORIZONTAL SCREW PILOT HOLE
-        // =================================================
-
-        // This hole runs horizontally into the first
-        // support underneath the lid.
+        // Horizontal screw pilot hole
 
         translate([
             screw_x - 0.1,
@@ -311,9 +312,7 @@ module lid() {
         );
 
 
-        // =================================================
-        // ADDITIONAL LID HOLE
-        // =================================================
+        // Additional lid hole
 
         translate([
             lid_hole_x,
@@ -327,9 +326,7 @@ module lid() {
         );
 
 
-        // =================================================
-        // VENTILATION
-        // =================================================
+        // Ventilation
 
         ventilation_grid();
     }
@@ -337,18 +334,13 @@ module lid() {
 
 
 // =====================================================
-// LID SUPPORTS
+// LID SUPPORTS + ALIGNMENT GUIDES
 // =====================================================
 
 module lid_supports() {
 
-    // Supports are attached to the UNDERSIDE of the lid.
-    //
-    // First narrow end:
-    // Centred support WITH horizontal screw pilot hole.
-    //
-    // Opposite narrow end:
-    // Centred support WITHOUT screw hole.
+    // Keep original screw-hole mounting support
+    // at first narrow end.
 
     end_support(
         (outer_width - large_corner_width) / 2,
@@ -359,13 +351,91 @@ module lid_supports() {
     );
 
 
-    end_support(
-        (outer_width - large_corner_width) / 2,
-        large_corner_width,
-        large_corner_depth,
-        large_corner_height,
-        true
-    );
+    // Four alignment guides underneath lid
+
+    lid_alignment_guides();
+}
+
+
+// =====================================================
+// FOUR-SIDED LID ALIGNMENT GUIDES
+// =====================================================
+
+module lid_alignment_guides() {
+
+    guide_length_x =
+        box_length - 2 * lid_guide_clearance;
+
+    guide_length_y =
+        box_width - 2 * lid_guide_clearance;
+
+
+    // LEFT EDGE
+
+    translate([
+        wall_thickness + lid_guide_clearance,
+        wall_thickness + lid_guide_clearance,
+        -lid_guide_height
+    ])
+
+    cube([
+        lid_guide_width,
+        guide_length_y,
+        lid_guide_height
+    ]);
+
+
+    // RIGHT EDGE
+
+    translate([
+        wall_thickness + box_length
+            - lid_guide_width
+            - lid_guide_clearance,
+
+        wall_thickness + lid_guide_clearance,
+
+        -lid_guide_height
+    ])
+
+    cube([
+        lid_guide_width,
+        guide_length_y,
+        lid_guide_height
+    ]);
+
+
+    // FRONT EDGE
+
+    translate([
+        wall_thickness + lid_guide_clearance,
+        wall_thickness + lid_guide_clearance,
+        -lid_guide_height
+    ])
+
+    cube([
+        guide_length_x,
+        lid_guide_width,
+        lid_guide_height
+    ]);
+
+
+    // BACK EDGE
+
+    translate([
+        wall_thickness + lid_guide_clearance,
+
+        wall_thickness + box_width
+            - lid_guide_width
+            - lid_guide_clearance,
+
+        -lid_guide_height
+    ])
+
+    cube([
+        guide_length_x,
+        lid_guide_width,
+        lid_guide_height
+    ]);
 }
 
 
@@ -385,15 +455,11 @@ module end_support(
 
     y0 = y_position;
 
-    // Supports extend DOWN from the underside of the lid.
-
     z0 = -support_height;
     z1 = 0;
 
 
     if (opposite_end) {
-
-        // Mirror support onto opposite narrow end
 
         translate([
             outer_length,
@@ -551,7 +617,7 @@ if (show_box)
 
 
 // Lid shown separately to the right.
-// Its supports are on the underside.
+// Alignment guides and screw support underneath.
 
 if (show_lid)
 
