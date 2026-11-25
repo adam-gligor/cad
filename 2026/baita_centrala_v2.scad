@@ -1,14 +1,16 @@
 
 //
 // PARAMETRIC ELECTRONICS ENCLOSURE
-// Box + Flat Inset Lid
+// External Top Lid with Internal Lid Supports
+// Horizontal Side-Entry Screw
 //
-// The box geometry remains unchanged.
-// Only the two lid supports are repositioned.
-//
-// Supports:
-// - One centred support on the first narrow end, with screw
-// - One centred support on the opposite narrow end, without screw
+// Changes:
+// - Lid supports moved from box to underside of lid.
+// - Lid sits ON TOP of box.
+// - Lid covers the complete external box footprint.
+// - Horizontal screw enters through narrow end wall.
+// - Screw engages pilot hole in lid support.
+// - PCB supports and existing box features retained.
 //
 
 $fn = 48;
@@ -19,9 +21,9 @@ $fn = 48;
 // =====================================================
 
 // Internal dimensions
-box_length = 81;
+box_length = 82;
 box_width  = 21;
-box_height = 28;
+box_height = 30;
 
 // Box
 wall_thickness   = 1.4;
@@ -52,6 +54,7 @@ screw_head_depth      = 1.2;
 screw_pilot_diameter  = 2.5;
 screw_hole_depth      = 3;
 
+
 // Screw reinforcement
 screw_ventilation_exclusion = 12;
 
@@ -60,7 +63,7 @@ screw_ventilation_exclusion = 12;
 // ADDITIONAL CIRCULAR HOLES
 // =====================================================
 
-// Horizontal hole in box side wall
+// Existing horizontal hole in box side wall
 box_side_hole_diameter = 10;
 box_side_hole_y = 12;
 box_side_hole_z = 10;
@@ -85,7 +88,7 @@ large_corner_height = 8;
 // =====================================================
 
 show_box = true;
-show_lid = true;
+show_lid = false;
 
 display_spacing = 15;
 
@@ -99,22 +102,24 @@ outer_width  = box_width + 2 * wall_thickness;
 
 box_top = bottom_thickness + box_height;
 
-lid_bottom = box_top - lid_thickness;
-
-mount_top = lid_bottom;
-
 
 // =====================================================
-// SCREW POSITION
+// HORIZONTAL SCREW POSITION
 // =====================================================
 
-// Screw is centred on the first narrow end support.
+// Screw enters horizontally through the first narrow end.
+//
+// X = screw insertion direction
+// Y = centre of narrow end
+// Z = 3 mm below top of box
 
-screw_position = [
-    wall_thickness + large_corner_depth / 2,
-    outer_width / 2,
-    box_top
-];
+
+// Screw enters horizontally through first narrow end.
+// Positioned 6 mm below the top of the box.
+
+screw_x = wall_thickness;
+screw_y = outer_width / 2;
+screw_z = box_top - 6;
 
 
 // =====================================================
@@ -145,6 +150,7 @@ module box_body() {
             box_height + 0.1
         ]);
 
+
         // Bottom mounting holes
         for (x = [
             mount_hole_offset,
@@ -163,6 +169,7 @@ module box_body() {
             );
         }
 
+
         // Existing horizontal side-wall hole
         translate([
             -0.1,
@@ -176,13 +183,33 @@ module box_body() {
             h = wall_thickness + 0.2,
             d = box_side_hole_diameter
         );
+
+
+        // =================================================
+        // NEW HORIZONTAL LID SCREW HOLE
+        // =================================================
+
+        // Screw clearance through box end wall
+
+
+        translate([
+            -0.1,
+            screw_y,
+            screw_z
+        ])
+
+        rotate([0, 90, 0])
+
+        cylinder(
+            h = wall_thickness + 0.2,
+            d = screw_diameter + screw_hole_clearance
+        );
     }
 
-    // PCB supports
-    pcb_supports();
 
-    // Two repositioned lid supports
-    box_corner_wedges();
+    // PCB supports remain in box
+
+    pcb_supports();
 }
 
 
@@ -232,51 +259,113 @@ module pcb_supports() {
 
 
 // =====================================================
-// TWO SUPPORTS ON THE NARROW END WALLS
+// LID
 // =====================================================
 
-module box_corner_wedges() {
+module lid() {
 
     difference() {
 
         union() {
 
-            // FIRST NARROW END
-            // Centred support WITH screw
+            // =================================================
+            // EXTERNAL TOP LID
+            // =================================================
 
-            end_support(
-                (outer_width - large_corner_width) / 2,
-                large_corner_width,
-                large_corner_depth,
-                large_corner_height,
-                false
-            );
+            // Lid covers complete external box dimensions.
+            // Its bottom surface sits directly on box top.
 
-            // OPPOSITE NARROW END
-            // Centred support WITHOUT screw
+            cube([
+                outer_length,
+                outer_width,
+                lid_thickness
+            ]);
 
-            end_support(
-                (outer_width - large_corner_width) / 2,
-                large_corner_width,
-                large_corner_depth,
-                large_corner_height,
-                true
-            );
+
+            // =================================================
+            // TWO SUPPORTS UNDERNEATH LID
+            // =================================================
+
+            lid_supports();
         }
 
-        // Screw pilot hole in first support only
+
+        // =================================================
+        // HORIZONTAL SCREW PILOT HOLE
+        // =================================================
+
+        // This hole runs horizontally into the first
+        // support underneath the lid.
 
         translate([
-            screw_position[0],
-            screw_position[1],
-            mount_top - screw_hole_depth
+            screw_x - 0.1,
+            screw_y,
+            -3
         ])
+
+        rotate([0, 90, 0])
 
         cylinder(
             h = screw_hole_depth + 0.2,
             d = screw_pilot_diameter
         );
+
+
+        // =================================================
+        // ADDITIONAL LID HOLE
+        // =================================================
+
+        translate([
+            lid_hole_x,
+            lid_hole_y,
+            -0.1
+        ])
+
+        cylinder(
+            h = lid_thickness + 0.2,
+            d = lid_hole_diameter
+        );
+
+
+        // =================================================
+        // VENTILATION
+        // =================================================
+
+        ventilation_grid();
     }
+}
+
+
+// =====================================================
+// LID SUPPORTS
+// =====================================================
+
+module lid_supports() {
+
+    // Supports are attached to the UNDERSIDE of the lid.
+    //
+    // First narrow end:
+    // Centred support WITH horizontal screw pilot hole.
+    //
+    // Opposite narrow end:
+    // Centred support WITHOUT screw hole.
+
+    end_support(
+        (outer_width - large_corner_width) / 2,
+        large_corner_width,
+        large_corner_depth,
+        large_corner_height,
+        false
+    );
+
+
+    end_support(
+        (outer_width - large_corner_width) / 2,
+        large_corner_width,
+        large_corner_depth,
+        large_corner_height,
+        true
+    );
 }
 
 
@@ -296,8 +385,11 @@ module end_support(
 
     y0 = y_position;
 
-    z0 = mount_top - support_height;
-    z1 = mount_top;
+    // Supports extend DOWN from the underside of the lid.
+
+    z0 = -support_height;
+    z1 = 0;
+
 
     if (opposite_end) {
 
@@ -383,70 +475,6 @@ module end_support_geometry(
 
 
 // =====================================================
-// FLAT INSET LID
-// =====================================================
-
-module lid() {
-
-    difference() {
-
-        // Flat lid plate
-        translate([
-            wall_thickness + lid_clearance,
-            wall_thickness + lid_clearance,
-            0
-        ])
-
-        cube([
-            box_length - 2 * lid_clearance,
-            box_width - 2 * lid_clearance,
-            lid_thickness
-        ]);
-
-        // Screw clearance hole
-        translate([
-            screw_position[0],
-            screw_position[1],
-            -0.1
-        ])
-
-        cylinder(
-            h = lid_thickness + 0.2,
-            d = screw_diameter + screw_hole_clearance
-        );
-
-        // Countersink
-        translate([
-            screw_position[0],
-            screw_position[1],
-            lid_thickness - screw_head_depth
-        ])
-
-        cylinder(
-            h = screw_head_depth + 0.1,
-            d1 = screw_diameter + screw_hole_clearance,
-            d2 = screw_head_diameter
-        );
-
-        // Additional lid hole
-        translate([
-            lid_hole_x,
-            lid_hole_y,
-            -0.1
-        ])
-
-        cylinder(
-            h = lid_thickness + 0.2,
-            d = lid_hole_diameter
-        );
-
-        // Ventilation
-        ventilation_grid();
-    }
-}
-
-
-// =====================================================
 // VENTILATION GRID
 // =====================================================
 
@@ -478,14 +506,14 @@ module ventilation_grid() {
             screw_distance = sqrt(
 
                 pow(
-                    vent_x - screw_position[0],
+                    vent_x - (wall_thickness + large_corner_depth / 2),
                     2
                 )
 
                 +
 
                 pow(
-                    vent_y - screw_position[1],
+                    vent_y - screw_y,
                     2
                 )
             );
@@ -516,19 +544,21 @@ module ventilation_grid() {
 // ASSEMBLY PREVIEW
 // =====================================================
 
-// Box remains in its original position and orientation.
+// Box remains in original position.
 
 if (show_box)
     box_body();
 
-// Lid displayed separately, unchanged.
+
+// Lid shown separately to the right.
+// Its supports are on the underside.
 
 if (show_lid)
 
     translate([
         outer_length + display_spacing,
         0,
-        mount_top
+        box_top
     ])
 
     lid();
