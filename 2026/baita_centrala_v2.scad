@@ -59,19 +59,19 @@ mount_hole_offset   = 10;
 
 side_vent_wall = "back"; // "front", "back", "left", "right"
 
-side_vent_diameter = 3;
+side_vent_diameter = 5;
 
 // Horizontal spacing between holes
-side_vent_spacing = 5;
+side_vent_spacing = 8;
 
 // Vertical spacing between rows
-side_vent_vertical_spacing = 5;
+side_vent_vertical_spacing = 8;
 
 // Distance from horizontal edges
 side_vent_margin = 8;
 
 // Distance from top and bottom edges
-side_vent_vertical_margin = 5;
+side_vent_vertical_margin = 6;
 
 
 
@@ -91,7 +91,7 @@ screw_hole_depth      = 3;
 // Existing horizontal hole in box side wall
 box_side_hole_diameter = 5;
 box_side_hole_y = 12;
-box_side_hole_z = 10;
+box_side_hole_z = 14;
 
 
 // Vertical hole in lid
@@ -106,7 +106,7 @@ lid_hole_y = 35;
 
 large_corner_width  = 10;
 large_corner_depth  = 14;
-large_corner_height = 14;
+large_corner_height = 12;
 
 
 // =====================================================
