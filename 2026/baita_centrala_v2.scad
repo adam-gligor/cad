@@ -43,7 +43,7 @@ lid_clearance = 0.25;
 
 // PCB supports
 pcb_support_size   = 5;
-pcb_support_height = 2;
+pcb_support_height = 4;
 
 
 // Bottom mounting holes
