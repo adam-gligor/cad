@@ -1,4 +1,3 @@
-
 //
 // PARAMETRIC ELECTRONICS ENCLOSURE
 // External Top Lid with Internal Lid Supports
@@ -6,6 +5,9 @@
 // Four-Sided Lid Alignment Guides
 //
 // Changes:
+// - Removed ventilation holes from the lid.
+// - Aligned lid pilot hole with the box-side screw hole.
+// - Added configurable circular ventilation holes to one selected box side.
 // - Lid supports moved from box to underside of lid.
 // - Lid sits ON TOP of box.
 // - Lid covers complete external box footprint.
@@ -51,10 +53,26 @@ mount_hole_diameter = 4;
 mount_hole_offset   = 10;
 
 
-// Ventilation
-vent_hole_size = 4.5;
-vent_spacing   = 4;
-vent_margin    = 8;
+// =====================================================
+// SIDE-WALL VENTILATION GRID
+// =====================================================
+
+side_vent_wall = "back"; // "front", "back", "left", "right"
+
+side_vent_diameter = 3;
+
+// Horizontal spacing between holes
+side_vent_spacing = 5;
+
+// Vertical spacing between rows
+side_vent_vertical_spacing = 5;
+
+// Distance from horizontal edges
+side_vent_margin = 8;
+
+// Distance from top and bottom edges
+side_vent_vertical_margin = 5;
+
 
 
 // Screw
@@ -66,16 +84,12 @@ screw_pilot_diameter  = 2.5;
 screw_hole_depth      = 3;
 
 
-// Screw reinforcement
-screw_ventilation_exclusion = 12;
-
-
 // =====================================================
 // ADDITIONAL CIRCULAR HOLES
 // =====================================================
 
 // Existing horizontal hole in box side wall
-box_side_hole_diameter = 10;
+box_side_hole_diameter = 5;
 box_side_hole_y = 12;
 box_side_hole_z = 10;
 
@@ -90,27 +104,25 @@ lid_hole_y = 35;
 // LID SUPPORT DIMENSIONS
 // =====================================================
 
-large_corner_width  = 14;
-large_corner_depth  = 10;
-large_corner_height = 8;
+large_corner_width  = 10;
+large_corner_depth  = 14;
+large_corner_height = 14;
 
 
 // =====================================================
 // LID ALIGNMENT GUIDES
 // =====================================================
 
-// Four-sided alignment frame
-
-lid_guide_width     = 2;    // Guide thickness (X/Y)
-lid_guide_height    = 2;    // Guide depth below lid
-lid_guide_clearance = 0.2;  // Clearance from box walls
+lid_guide_width     = 2;
+lid_guide_height    = 2;
+lid_guide_clearance = 0.2;
 
 
 // =====================================================
 // DISPLAY
 // =====================================================
 
-show_box = false;
+show_box = true;
 show_lid = true;
 
 display_spacing = 15;
@@ -217,6 +229,11 @@ module box_body() {
             h = wall_thickness + 0.2,
             d = screw_diameter + screw_hole_clearance
         );
+
+
+        // Configurable circular side ventilation
+
+        side_wall_ventilation();
     }
 
 
@@ -297,11 +314,12 @@ module lid() {
 
 
         // Horizontal screw pilot hole
+        // Z position aligned with box screw hole
 
         translate([
             screw_x - 0.1,
             screw_y,
-            -3
+            screw_z - box_top
         ])
 
         rotate([0, 90, 0])
@@ -325,10 +343,6 @@ module lid() {
             d = lid_hole_diameter
         );
 
-
-        // Ventilation
-
-        ventilation_grid();
     }
 }
 
@@ -539,69 +553,131 @@ module end_support_geometry(
     );
 }
 
-
 // =====================================================
-// VENTILATION GRID
+// CONFIGURABLE CIRCULAR SIDE-WALL VENTILATION GRID
 // =====================================================
 
-module ventilation_grid() {
+module side_wall_ventilation() {
 
-    step = vent_hole_size + vent_spacing;
+    // FRONT OR BACK WALL
+    // Holes distributed horizontally and vertically
 
-    for (
-        x = [
-            wall_thickness + vent_margin :
-            step :
-            wall_thickness + box_length
-            - vent_margin - vent_hole_size
-        ]
+    if (side_vent_wall == "front" ||
+        side_vent_wall == "back") {
+
+        for (
+            x = [
+                wall_thickness + side_vent_margin :
+                side_vent_spacing :
+                outer_length - wall_thickness - side_vent_margin
+            ]
+        ) {
+
+            for (
+                z = [
+                    bottom_thickness + side_vent_vertical_margin :
+                    side_vent_vertical_spacing :
+                    box_top - side_vent_vertical_margin
+                ]
+            ) {
+
+                if (side_vent_wall == "front") {
+
+                    translate([
+                        x,
+                        -0.1,
+                        z
+                    ])
+
+                    rotate([-90, 0, 0])
+
+                    cylinder(
+                        h = wall_thickness + 0.2,
+                        d = side_vent_diameter
+                    );
+
+                } else {
+
+                    translate([
+                        x,
+                        outer_width + 0.1,
+                        z
+                    ])
+
+                    rotate([90, 0, 0])
+
+                    cylinder(
+                        h = wall_thickness + 0.2,
+                        d = side_vent_diameter
+                    );
+                }
+            }
+        }
+
+
+    // LEFT OR RIGHT WALL
+    // Holes distributed horizontally and vertically
+
+    } else if (
+        side_vent_wall == "left" ||
+        side_vent_wall == "right"
     ) {
 
         for (
             y = [
-                wall_thickness + vent_margin :
-                step :
-                wall_thickness + box_width
-                - vent_margin - vent_hole_size
+                wall_thickness + side_vent_margin :
+                side_vent_spacing :
+                outer_width - wall_thickness - side_vent_margin
             ]
         ) {
 
-            vent_x = x + vent_hole_size / 2;
-            vent_y = y + vent_hole_size / 2;
-
-            screw_distance = sqrt(
-
-                pow(
-                    vent_x - (wall_thickness + large_corner_depth / 2),
-                    2
-                )
-
-                +
-
-                pow(
-                    vent_y - screw_y,
-                    2
-                )
-            );
-
-            if (
-                screw_distance >
-                screw_ventilation_exclusion
+            for (
+                z = [
+                    bottom_thickness + side_vent_vertical_margin :
+                    side_vent_vertical_spacing :
+                    box_top - side_vent_vertical_margin
+                ]
             ) {
 
-                translate([
-                    x,
-                    y,
-                    -0.1
-                ])
+                if (side_vent_wall == "left") {
 
-                cube([
-                    vent_hole_size,
-                    vent_hole_size,
-                    lid_thickness + 0.2
-                ]);
+                    translate([
+                        -0.1,
+                        y,
+                        z
+                    ])
+
+                    rotate([0, 90, 0])
+
+                    cylinder(
+                        h = wall_thickness + 0.2,
+                        d = side_vent_diameter
+                    );
+
+                } else {
+
+                    translate([
+                        outer_length + 0.1,
+                        y,
+                        z
+                    ])
+
+                    rotate([0, -90, 0])
+
+                    cylinder(
+                        h = wall_thickness + 0.2,
+                        d = side_vent_diameter
+                    );
+                }
             }
         }
+
+    } else {
+
+        echo(
+            "ERROR: side_vent_wall must be front, back, left, or right"
+        );
+
     }
 }
 
