@@ -89,7 +89,7 @@ screw_hole_depth      = 3;
 // =====================================================
 
 // Existing horizontal hole in box side wall
-box_side_hole_diameter = 5;
+box_side_hole_diameter = 6;
 box_side_hole_y = 12;
 box_side_hole_z = 14;
 
