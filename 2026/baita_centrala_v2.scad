@@ -696,11 +696,11 @@ if (show_box)
 // Alignment guides and screw support underneath.
 
 if (show_lid)
-
+    
     translate([
-        outer_length + display_spacing,
-        0,
-        box_top
+        0,// outer_length + display_spacing,
+        outer_width+ display_spacing + 10,
+        lid_thickness//box_top
     ])
-
+    rotate([180,0,0])
     lid();
