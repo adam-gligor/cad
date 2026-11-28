@@ -1,6 +1,7 @@
 use <baita_centrala_v2_rcv.scad>
 
 
+union(){
 enclosure(
 
     length = 82,
@@ -29,7 +30,8 @@ enclosure(
     wall = 2,
 
     vent_enabled = true,
-    vent_walls = ["back", "right", "front"],
+    vent_walls = [ "right", "front"],
+    
 
     pcb_enabled = true,
     pcb_height  = 4+8,
@@ -41,21 +43,25 @@ enclosure(
 
 
 
-translate([53,-28-0.4,0])
+translate([0,-28-0.4,0])
 enclosure(
 
-    length = 82-51-2,
+    length = 82,
     width =26.4 ,
     height = 30,
 
     wall = 2,
 
     vent_enabled = true,
-     vent_walls = ["back", "left"],
-
+    vent_walls = ["back", "left"],
+    //vent_margin=1,
     pcb_enabled = false,
 
     show_box = true,
     show_lid = false
 
 );
+}
+
+//translate([2,-26,30])
+//cube([82,26.4+23,5]);
