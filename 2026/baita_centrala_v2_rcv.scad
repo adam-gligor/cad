@@ -15,7 +15,7 @@
 // 8. Bottom mounting holes
 // 9. Horizontal side-entry screw
 // 10. Four-sided lid alignment guides
-// 11. Configurable side-wall ventilation
+// 11. Configurable multi-wall ventilation
 // 12. Additional circular holes
 //
 // Units: mm
@@ -29,74 +29,55 @@ $fn = 48;
 // ============================================================
 
 // Internal dimensions
-
 default_length = 82;
 default_width  = 21;
 default_height = 30;
 
-
 // Box walls
-
 default_wall   = 1.4;
 default_bottom = 1.4;
 
-
 // Lid
-
 default_lid_thickness = 1.4;
 
-
 // PCB supports
-
 default_pcb_size   = 5;
 default_pcb_height = 4;
 
-
 // Bottom mounting holes
-
 default_mount_diameter = 4;
 default_mount_offset   = 10;
 
-
 // Screw
-
 default_screw_diameter       = 3;
 default_screw_clearance      = 0.3;
 default_screw_pilot_diameter = 2.5;
 default_screw_hole_depth     = 3;
 
-
 // Lid screw support
-
 default_support_width  = 10;
 default_support_depth  = 14;
 default_support_height = 12;
 
-
 // Lid alignment guides
-
 default_guide_width     = 2;
 default_guide_height    = 2;
 default_guide_clearance = 0.2;
 
-
 // Additional box-side hole
-
 default_side_hole_diameter = 6;
 default_side_hole_y = 12;
 default_side_hole_z = 14;
 
-
 // Additional lid hole
-
 default_lid_hole_diameter = 5;
 default_lid_hole_x = 50;
 default_lid_hole_y = 35;
 
-
 // Ventilation
+// Available walls: "front", "back", "left", "right"
 
-default_vent_wall = "back";
+default_vent_walls = ["back"];
 
 default_vent_diameter = 5;
 default_vent_spacing = 8;
@@ -133,7 +114,7 @@ module box_body(
     side_hole_z = default_side_hole_z,
 
     vent_enabled = true,
-    vent_wall = default_vent_wall,
+    vent_walls = default_vent_walls,
     vent_diameter = default_vent_diameter,
     vent_spacing = default_vent_spacing,
     vent_vertical_spacing = default_vent_vertical_spacing,
@@ -247,7 +228,7 @@ module box_body(
         }
 
 
-        // SIDE WALL VENTILATION
+        // MULTI-WALL VENTILATION
 
         if (vent_enabled) {
 
@@ -260,7 +241,8 @@ module box_body(
                 wall,
                 bottom,
 
-                vent_wall,
+                vent_walls,
+
                 vent_diameter,
                 vent_spacing,
                 vent_vertical_spacing,
@@ -696,7 +678,7 @@ module end_support(
 
 
 // ============================================================
-// 8. CONFIGURABLE SIDE WALL VENTILATION
+// 8. CONFIGURABLE MULTI-WALL VENTILATION
 // ============================================================
 
 module side_wall_ventilation(
@@ -708,7 +690,7 @@ module side_wall_ventilation(
     wall,
     bottom,
 
-    selected_wall,
+    selected_walls,
 
     diameter,
     spacing,
@@ -725,60 +707,71 @@ module side_wall_ventilation(
     box_top = bottom + height;
 
 
-    // FRONT OR BACK WALL
+    // LOOP THROUGH ALL SELECTED WALLS
 
-    if (
-        selected_wall == "front" ||
-        selected_wall == "back"
-    ) {
+    for (selected_wall = selected_walls) {
 
-        for (
-            x = [
-                wall + margin :
-                spacing :
-                outer_length - wall - margin
-            ]
+
+        // FRONT OR BACK WALL
+
+        if (
+            selected_wall == "front" ||
+            selected_wall == "back"
         ) {
 
             for (
-                z = [
-                    bottom + vertical_margin :
-                    vertical_spacing :
-                    box_top - vertical_margin
+                x = [
+                    wall + margin :
+                    spacing :
+                    outer_length - wall - margin
                 ]
             ) {
 
-                if (selected_wall == "front") {
+                for (
+                    z = [
+                        bottom + vertical_margin :
+                        vertical_spacing :
+                        box_top - vertical_margin
+                    ]
+                ) {
 
-                    translate([
-                        x,
-                        -0.1,
-                        z
-                    ])
+                    // FRONT
 
-                    rotate([-90,0,0])
+                    if (selected_wall == "front") {
 
-                    cylinder(
-                        h = wall + 0.2,
-                        d = diameter
-                    );
+                        translate([
+                            x,
+                            -0.1,
+                            z
+                        ])
 
-                }
+                        rotate([-90,0,0])
 
-                else {
+                        cylinder(
+                            h = wall + 0.2,
+                            d = diameter
+                        );
 
-                    translate([
-                        x,
-                        outer_width + 0.1,
-                        z
-                    ])
+                    }
 
-                    rotate([90,0,0])
+                    // BACK
 
-                    cylinder(
-                        h = wall + 0.2,
-                        d = diameter
-                    );
+                    else {
+
+                        translate([
+                            x,
+                            outer_width + 0.1,
+                            z
+                        ])
+
+                        rotate([90,0,0])
+
+                        cylinder(
+                            h = wall + 0.2,
+                            d = diameter
+                        );
+
+                    }
 
                 }
 
@@ -786,63 +779,67 @@ module side_wall_ventilation(
 
         }
 
-    }
 
+        // LEFT OR RIGHT WALL
 
-    // LEFT OR RIGHT WALL
-
-    else if (
-        selected_wall == "left" ||
-        selected_wall == "right"
-    ) {
-
-        for (
-            y = [
-                wall + margin :
-                spacing :
-                outer_width - wall - margin
-            ]
+        else if (
+            selected_wall == "left" ||
+            selected_wall == "right"
         ) {
 
             for (
-                z = [
-                    bottom + vertical_margin :
-                    vertical_spacing :
-                    box_top - vertical_margin
+                y = [
+                    wall + margin :
+                    spacing :
+                    outer_width - wall - margin
                 ]
             ) {
 
-                if (selected_wall == "left") {
+                for (
+                    z = [
+                        bottom + vertical_margin :
+                        vertical_spacing :
+                        box_top - vertical_margin
+                    ]
+                ) {
 
-                    translate([
-                        -0.1,
-                        y,
-                        z
-                    ])
+                    // LEFT
 
-                    rotate([0,90,0])
+                    if (selected_wall == "left") {
 
-                    cylinder(
-                        h = wall + 0.2,
-                        d = diameter
-                    );
+                        translate([
+                            -0.1,
+                            y,
+                            z
+                        ])
 
-                }
+                        rotate([0,90,0])
 
-                else {
+                        cylinder(
+                            h = wall + 0.2,
+                            d = diameter
+                        );
 
-                    translate([
-                        outer_length + 0.1,
-                        y,
-                        z
-                    ])
+                    }
 
-                    rotate([0,-90,0])
+                    // RIGHT
 
-                    cylinder(
-                        h = wall + 0.2,
-                        d = diameter
-                    );
+                    else {
+
+                        translate([
+                            outer_length + 0.1,
+                            y,
+                            z
+                        ])
+
+                        rotate([0,-90,0])
+
+                        cylinder(
+                            h = wall + 0.2,
+                            d = diameter
+                        );
+
+                    }
 
                 }
 
@@ -850,13 +847,20 @@ module side_wall_ventilation(
 
         }
 
-    }
 
-    else {
+        // INVALID WALL SELECTION
 
-        echo(
-            "ERROR: Vent wall must be front, back, left or right"
-        );
+        else {
+
+            echo(
+                str(
+                    "ERROR: Invalid vent wall '",
+                    selected_wall,
+                    "'. Use front, back, left or right."
+                )
+            );
+
+        }
 
     }
 
@@ -899,7 +903,7 @@ module enclosure(
     guide_clearance = default_guide_clearance,
 
     vent_enabled = true,
-    vent_wall = default_vent_wall,
+    vent_walls = default_vent_walls,
     vent_diameter = default_vent_diameter,
     vent_spacing = default_vent_spacing,
     vent_vertical_spacing = default_vent_vertical_spacing,
@@ -964,7 +968,7 @@ module enclosure(
             side_hole_z = side_hole_z,
 
             vent_enabled = vent_enabled,
-            vent_wall = vent_wall,
+            vent_walls = vent_walls,
             vent_diameter = vent_diameter,
             vent_spacing = vent_spacing,
             vent_vertical_spacing = vent_vertical_spacing,
@@ -1056,7 +1060,10 @@ module enclosure_grid(
     show_box = true,
     show_lid = true,
 
-    lid_separate = false
+    lid_separate = false,
+
+    vent_enabled = true,
+    vent_walls = default_vent_walls
 
 ) {
 
@@ -1090,7 +1097,10 @@ module enclosure_grid(
                 show_box = show_box,
                 show_lid = show_lid,
 
-                lid_separate = lid_separate
+                lid_separate = lid_separate,
+
+                vent_enabled = vent_enabled,
+                vent_walls = vent_walls
 
             );
 
@@ -1116,7 +1126,8 @@ module example_individual_boxes() {
         width = 21,
         height = 30,
 
-        vent_wall = "back"
+        vent_enabled = true,
+        vent_walls = ["back"]
 
     );
 
@@ -1131,7 +1142,8 @@ module example_individual_boxes() {
         width = 30,
         height = 35,
 
-        vent_wall = "front",
+        vent_enabled = true,
+        vent_walls = ["front", "back"],
         vent_diameter = 4
 
     );
@@ -1149,7 +1161,8 @@ module example_individual_boxes() {
 
         wall = 2,
 
-        vent_wall = "left",
+        vent_enabled = true,
+        vent_walls = ["left", "right"],
 
         pcb_enabled = false
 
@@ -1161,13 +1174,12 @@ module example_individual_boxes() {
 // ============================================================
 // 12. MAIN CONFIGURATION
 // ============================================================
-//
+
 // DISPLAY MODE:
 //
 // 0 = Single enclosure
 // 1 = Multiple identical enclosures
 // 2 = Multiple individually configured enclosures
-//
 
 display_mode = 0;
 
@@ -1179,6 +1191,22 @@ single_width  = 21;
 single_height = 30;
 
 
+// SINGLE BOX VENTILATION
+
+single_vent_enabled = true;
+
+// Select any combination:
+// ["front"]
+// ["back"]
+// ["left"]
+// ["right"]
+// ["front", "back"]
+// ["left", "right"]
+// ["front", "back", "left", "right"]
+
+single_vent_walls = ["front", "back"];
+
+
 // MULTIPLE BOX SETTINGS
 
 number_x = 3;
@@ -1186,6 +1214,13 @@ number_y = 2;
 
 spacing_x = 20;
 spacing_y = 20;
+
+
+// MULTIPLE BOX VENTILATION
+
+grid_vent_enabled = true;
+
+grid_vent_walls = ["back"];
 
 
 // DISPLAY OPTIONS
@@ -1198,7 +1233,6 @@ display_lid = true;
 //
 // false = lid assembled on box
 // true  = lid displayed separately
-//
 
 separate_lid = false;
 
@@ -1217,6 +1251,9 @@ if (display_mode == 0) {
         length = single_length,
         width = single_width,
         height = single_height,
+
+        vent_enabled = single_vent_enabled,
+        vent_walls = single_vent_walls,
 
         show_box = display_box,
         show_lid = display_lid,
@@ -1243,6 +1280,9 @@ else if (display_mode == 1) {
         length = single_length,
         width = single_width,
         height = single_height,
+
+        vent_enabled = grid_vent_enabled,
+        vent_walls = grid_vent_walls,
 
         show_box = display_box,
         show_lid = display_lid,

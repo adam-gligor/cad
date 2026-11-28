@@ -4,13 +4,13 @@ use <baita_centrala_v2_rcv.scad>
 enclosure(
 
     length = 82,
-    width = 21 +2,
+    width = 23,
     height = 30,
 
     wall = 2,
 
     vent_enabled = true,
-    vent_wall = "back",
+    vent_walls = ["front","back"],
 
     pcb_enabled = true,
 
@@ -19,19 +19,20 @@ enclosure(
 
 );
 
-translate([0,-28,0])
+translate([0,-28-0.4,0])
 enclosure(
 
     length = 51,
-    width = 26,
+    width = 26.4,
     height = 30,
 
     wall = 2,
 
-    vent_enabled = false,
-    vent_wall = "back",
+    vent_enabled = true,
+    vent_walls = ["back", "right", "front"],
 
     pcb_enabled = true,
+    pcb_height  = 4+8,
 
     show_box = true,
     show_lid = false
@@ -40,17 +41,17 @@ enclosure(
 
 
 
-translate([0,-28,0])
+translate([53,-28-0.4,0])
 enclosure(
 
-    length = 82,
-    width = 26,
+    length = 82-51-2,
+    width =26.4 ,
     height = 30,
 
     wall = 2,
 
-    vent_enabled = false,
-    vent_wall = "back",
+    vent_enabled = true,
+     vent_walls = ["back", "left"],
 
     pcb_enabled = false,
 
